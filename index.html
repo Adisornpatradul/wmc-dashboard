@@ -278,14 +278,14 @@ footer{
     <div class="section-title">🏥 รายได้ OPD รายหน่วยบริการ (Daily Revenue)</div>
     <div class="card">
       <div class="card-title"><span class="dot blue"></span>Daily Revenue vs เป้าวันนี้ แยกตาม BU</div>
-      <div class="chart-wrap" style="height:420px"><canvas id="buChart"></canvas></div>
+      <div class="chart-wrap" id="buChartWrap" style="min-height:420px"><canvas id="buChart"></canvas></div>
     </div>
 
     <!-- MTD PROGRESS -->
     <div class="section-title">📈 MTD Revenue vs Monthly Forecast (สะสมเดือน)</div>
     <div class="card">
       <div class="card-title"><span class="dot gold"></span>ความคืบหน้าสะสมรายเดือน (%MTD / เป้ารายเดือน)</div>
-      <div class="chart-wrap" style="height:420px"><canvas id="mtdChart"></canvas></div>
+      <div class="chart-wrap" id="mtdChartWrap" style="min-height:420px"><canvas id="mtdChart"></canvas></div>
     </div>
 
     <!-- WARD CENSUS -->
@@ -546,6 +546,9 @@ function buildRevSplit(d){
 // ─── BU Daily Revenue vs Forecast ───
 function buildBuChart(bu){
   const sorted=[...bu].sort((a,b)=>b.dailyRev-a.dailyRev);
+  // Dynamic height: 38px per BU (2 datasets) + 80px header/legend
+  const dynH=Math.max(420, sorted.length*38+80);
+  document.getElementById('buChartWrap').style.height=dynH+'px';
   const ctx=document.getElementById('buChart').getContext('2d');
   C_bu=new Chart(ctx,{
     type:'bar',
@@ -571,6 +574,9 @@ function buildBuChart(bu){
 function buildMtdChart(bu){
   const sorted=[...bu].sort((a,b)=>(b.mtdRev/b.monthlyFc)-(a.mtdRev/a.monthlyFc));
   const pcts=sorted.map(b=>+(b.mtdRev/b.monthlyFc*100).toFixed(1));
+  // Dynamic height: 30px per BU (1 dataset) + 60px padding
+  const dynH=Math.max(420, sorted.length*30+60);
+  document.getElementById('mtdChartWrap').style.height=dynH+'px';
   const ctx=document.getElementById('mtdChart').getContext('2d');
   C_mtd=new Chart(ctx,{
     type:'bar',
