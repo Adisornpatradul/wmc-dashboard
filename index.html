@@ -623,7 +623,7 @@ function buildWard(d,dk){
       <div class="sub">ณ 04:00 น.</div>
     </div>`;
   // Priority 2: legacy June 9 hardcoded data
-  }else if(dk==='2026-06-09'){
+  }else if(dk==='2026-07-09'){
     WARD_JUNE9.forEach(w=>{
       grid.innerHTML+=`<div class="ward-box"><div class="num">${w.today}</div><div class="lbl">${w.name}</div><div class="sub">+${w.admit} รับใหม่ / -${w.discharge} discharge</div></div>`;
     });
