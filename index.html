@@ -2,701 +2,141 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WMC Monthly Dashboard — กรกฎาคม 2569</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<title>WMC Dashboard</title>
 <style>
-:root{
-  --green:#1a7a4a;--green2:#23a05f;--green3:#d4f5e2;
-  --blue:#1565c0;--blue2:#1e88e5;--blue3:#dbeafe;
-  --gold:#c8960c;--gold2:#f5b800;--gold3:#fff8d6;
-  --red:#c62828;--red2:#ef5350;--red3:#fde8e8;
-  --bg:#f0f4f8;--card:#ffffff;--text:#1a202c;
-  --sub:#64748b;--border:#e2e8f0;
-  --shadow:0 2px 12px rgba(0,0,0,.08);
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  background: linear-gradient(160deg, #0d3b5e 0%, #0a7153 100%);
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--text);}
-
-/* ─── HEADER ─── */
-header{
-  background:linear-gradient(135deg,#0d4f2e 0%,#1a7a4a 45%,#1565c0 100%);
-  color:#fff;padding:18px 32px;
-  display:flex;align-items:center;justify-content:space-between;
+.logo { font-size: 64px; margin-bottom: 16px; }
+h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.3px; }
+.sub { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 4px; margin-bottom: 24px; }
+.badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 999px;
+  padding: 7px 20px;
+  font-size: 14px;
+  margin-bottom: 36px;
+  letter-spacing: 0.2px;
 }
-.logo{display:flex;align-items:center;gap:14px;}
-.logo-circle{
-  width:48px;height:48px;border-radius:50%;
-  background:rgba(255,255,255,.18);
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;font-weight:900;color:var(--gold2);
-  border:2px solid var(--gold2);
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: white;
+  color: #0d3b5e;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  transition: transform 0.1s, opacity 0.1s;
 }
-.logo-text h1{font-size:1.25rem;font-weight:700;letter-spacing:.5px;}
-.logo-text p{font-size:.78rem;opacity:.8;margin-top:2px;}
-.header-right{text-align:right;}
-.header-right .date-big{font-size:1.4rem;font-weight:700;color:var(--gold2);}
-.header-right .date-sub{font-size:.75rem;opacity:.75;margin-top:2px;}
-.mtd-row{display:flex;gap:24px;margin-top:8px;justify-content:flex-end;}
-.mtd-item{text-align:center;}
-.mtd-val{font-size:1.1rem;font-weight:800;color:var(--gold2);}
-.mtd-lbl{font-size:.62rem;opacity:.75;text-transform:uppercase;letter-spacing:.06em;}
-
-/* ─── LAYOUT ─── */
-.container{max-width:1440px;margin:0 auto;padding:24px 24px 40px;}
-.section-title{
-  font-size:.7rem;font-weight:700;letter-spacing:1.4px;
-  text-transform:uppercase;color:var(--sub);
-  margin:28px 0 12px;padding-left:2px;
+.btn:active { transform: scale(0.97); opacity: 0.9; }
+.progress-ring {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
 }
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
-.kpi{
-  background:var(--card);border-radius:14px;padding:18px 20px;
-  box-shadow:var(--shadow);border-left:4px solid var(--green);
-  display:flex;flex-direction:column;gap:6px;transition:transform .15s;
+.progress-ring circle {
+  fill: none;
+  stroke: #0d3b5e;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 1s linear;
 }
-.kpi:hover{transform:translateY(-2px);}
-.kpi.blue{border-color:var(--blue2);}
-.kpi.gold{border-color:var(--gold);}
-.kpi.red{border-color:var(--red2);}
-.kpi.teal{border-color:#0891b2;}
-.kpi-label{font-size:.72rem;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
-.kpi-value{font-size:1.9rem;font-weight:800;line-height:1;color:var(--text);}
-.kpi-value.green{color:var(--green2);}
-.kpi-value.blue{color:var(--blue2);}
-.kpi-value.gold{color:var(--gold);}
-.kpi-value.red{color:var(--red2);}
-.kpi-value.teal{color:#0891b2;}
-.kpi-sub{font-size:.75rem;color:var(--sub);}
-.card{
-  background:var(--card);border-radius:14px;
-  padding:22px 24px;box-shadow:var(--shadow);margin-bottom:16px;
+.hint {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 28px;
+  line-height: 1.8;
 }
-.card-title{
-  font-size:.85rem;font-weight:700;color:var(--text);
-  margin-bottom:16px;display:flex;align-items:center;gap:8px;
-}
-.card-title .dot{width:10px;height:10px;border-radius:50%;background:var(--green2);flex-shrink:0;}
-.card-title .dot.blue{background:var(--blue2);}
-.card-title .dot.gold{background:var(--gold);}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
-.chart-wrap{position:relative;width:100%;}
-.tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
-.tbl thead th{
-  background:linear-gradient(135deg,#0d4f2e,#1565c0);
-  color:#fff;padding:9px 12px;text-align:right;
-  font-weight:600;font-size:.72rem;letter-spacing:.4px;
-}
-.tbl thead th:first-child{text-align:left;border-radius:8px 0 0 0;}
-.tbl thead th:last-child{border-radius:0 8px 0 0;}
-.tbl tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
-.tbl tbody tr:hover{background:#f8fafc;}
-.tbl td{padding:8px 12px;text-align:right;color:var(--text);}
-.tbl td:first-child{text-align:left;font-weight:500;}
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:700;}
-.badge.pos{background:var(--green3);color:var(--green);}
-.badge.neg{background:var(--red3);color:var(--red);}
-.badge.neu{background:#f1f5f9;color:var(--sub);}
-.bar-wrap{display:flex;align-items:center;gap:6px;}
-.bar-bg{flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:4px;background:var(--blue2);}
-.bar-fill.green{background:var(--green2);}
-.bar-fill.gold{background:var(--gold2);}
-.bar-fill.red{background:var(--red2);}
-.ward-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-.ward-box{
-  background:linear-gradient(135deg,var(--blue3),#fff);
-  border:1px solid #bfdbfe;border-radius:12px;padding:16px;text-align:center;
-}
-.ward-box .num{font-size:2.2rem;font-weight:800;color:var(--blue);}
-.ward-box .lbl{font-size:.7rem;color:var(--sub);margin-top:4px;font-weight:600;}
-.ward-box .ward-rev{font-size:.78rem;color:var(--green);font-weight:700;margin-top:4px;}
-.ward-box .sub{font-size:.68rem;color:var(--green2);margin-top:2px;}
-.donut-legend{list-style:none;padding:0;margin-top:12px;}
-.donut-legend li{
-  display:flex;align-items:center;gap:8px;
-  font-size:.78rem;padding:4px 0;border-bottom:1px solid var(--border);
-}
-.donut-legend .swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
-.filter-bar{
-  display:flex;gap:10px;align-items:center;
-  background:var(--card);border-radius:10px;padding:12px 16px;
-  box-shadow:var(--shadow);margin-bottom:16px;flex-wrap:wrap;
-}
-.filter-bar label{font-size:.75rem;font-weight:600;color:var(--sub);}
-.filter-bar select,.filter-bar input{
-  padding:5px 10px;border:1px solid var(--border);border-radius:6px;
-  font-size:.78rem;color:var(--text);background:#f8fafc;cursor:pointer;
-}
-.btn-reset{
-  margin-left:auto;padding:5px 14px;background:var(--green2);
-  color:#fff;border:none;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;
-}
-.btn-reset:hover{background:var(--green);}
-footer{
-  text-align:center;font-size:.72rem;color:var(--sub);
-  padding:16px;border-top:1px solid var(--border);margin-top:24px;
-}
-
-/* ─── CALENDAR ─── */
-.cal-card{
-  background:var(--card);border-radius:14px;
-  padding:22px 24px;box-shadow:var(--shadow);margin-bottom:16px;
-}
-.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.cal-hdr h2{font-size:1rem;font-weight:700;color:var(--text);}
-.cal-hdr p{font-size:.75rem;color:var(--sub);}
-#calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
-.cdow{
-  text-align:center;padding:6px 0;
-  font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;
-}
-.cdow.wknd{color:var(--blue2);}
-.cday{
-  border-radius:10px;padding:9px;min-height:86px;
-  border:1.5px solid transparent;position:relative;transition:all .15s;
-}
-.cday.empty{background:transparent;border:none;}
-.cday.nodata{background:#fafbfc;border-color:var(--border);}
-.cday.hasdata{
-  background:var(--green3);border-color:#86efac;cursor:pointer;
-}
-.cday.hasdata:hover{
-  border-color:var(--green);box-shadow:0 4px 14px rgba(26,122,74,.2);
-  transform:translateY(-2px);
-}
-.cday.active{
-  border-color:var(--green)!important;
-  box-shadow:0 0 0 3px rgba(26,122,74,.25),0 4px 14px rgba(26,122,74,.2)!important;
-  transform:translateY(-1px);
-}
-.cday.wkndday.hasdata{background:#dbeafe;border-color:#93c5fd;}
-.cday.wkndday.hasdata:hover{border-color:var(--blue2);box-shadow:0 4px 14px rgba(21,101,192,.2);}
-.cday.wkndday.nodata{background:#f8fafc;}
-.dnum{font-size:.95rem;font-weight:700;color:var(--text);}
-.cday.nodata .dnum{color:#cbd5e1;}
-.cday.wkndday .dnum{color:var(--blue2);}
-.dbadge{
-  display:inline-block;font-size:.56rem;font-weight:700;
-  padding:1px 5px;border-radius:8px;margin-left:3px;vertical-align:middle;
-}
-.dbadge.sat{background:#dbeafe;color:var(--blue);}
-.dbadge.sun{background:var(--red3);color:var(--red);}
-.dstats{margin-top:6px;}
-.dopd{font-size:.68rem;color:var(--blue);font-weight:600;}
-.dipd{font-size:.67rem;color:var(--green2);}
-.dbilled{font-size:.72rem;font-weight:700;color:var(--gold);margin-top:3px;}
-.dbar{position:absolute;bottom:5px;left:9px;right:9px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
-.dbarfill{height:100%;background:var(--green2);border-radius:2px;}
-
-/* ─── DETAIL PANEL ─── */
-#detail{animation:slideIn .3s ease;}
-@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-/* close button for detail */
-.detail-back{
-  display:flex;align-items:center;gap:10px;
-  background:var(--card);border-radius:10px;padding:12px 18px;
-  box-shadow:var(--shadow);margin-bottom:4px;cursor:pointer;
-  font-size:.82rem;font-weight:600;color:var(--sub);
-  border:1.5px solid var(--border);transition:all .15s;
-  width:fit-content;
-}
-.detail-back:hover{border-color:var(--green);color:var(--green);}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-circle">W</div>
-    <div class="logo-text">
-      <h1>World Medical Hospital</h1>
-      <p>WMC Monthly Management Dashboard — กรกฎาคม 2569</p>
-    </div>
-  </div>
-  <div class="header-right">
-    <div class="date-big">กรกฎาคม 2569</div>
-    <div class="date-sub">ข้อมูล 2 วัน (1–2 ก.ค. 2569) &nbsp;|&nbsp; คลิกวันที่เพื่อดูรายละเอียด</div>
-    <div class="mtd-row" id="mtdRow"></div>
-  </div>
-</header>
+<div class="logo">🏥</div>
+<h1>WMC Daily Dashboard</h1>
+<div class="sub">โรงพยาบาลเวิลด์เมดิคอล</div>
+<div class="badge" id="badge">⏳ กำลังโหลด...</div>
 
-<div class="container">
+<a class="btn" id="btn" href="#">
+  <svg class="progress-ring" viewBox="0 0 22 22">
+    <circle id="ring" cx="11" cy="11" r="9"/>
+  </svg>
+  <span id="btn-text">กำลังเปิด Dashboard...</span>
+</a>
 
-  <!-- CALENDAR -->
-  <div class="section-title">📅 ปฏิทินกรกฎาคม 2569 — เลือกวันที่</div>
-  <div class="cal-card">
-    <div class="cal-hdr">
-      <h2>กรกฎาคม 2569 (July 2026)</h2>
-      <p>🟢 มีข้อมูล — คลิกเพื่อดู Dashboard รายวัน</p>
-    </div>
-    <div id="calGrid"></div>
-  </div>
-
-  <!-- DETAIL (hidden until day clicked) -->
-  <div id="detail" style="display:none">
-
-    <div class="detail-back" onclick="closeDetail()">← กลับปฏิทิน</div>
-
-    <!-- FILTER BAR -->
-    <div class="filter-bar no-print">
-      <label>กรอง BU:</label>
-      <select id="buFilter" onchange="filterTable()">
-        <option value="">-- ทุก BU --</option>
-      </select>
-      <label>แสดง:</label>
-      <select id="showFilter" onchange="filterTable()">
-        <option value="all">ทุก BU</option>
-        <option value="pos">Daily > เป้าวัน ✅</option>
-        <option value="neg">Daily < เป้าวัน ❌</option>
-      </select>
-      <button class="btn-reset" onclick="resetFilter()">รีเซ็ต</button>
-    </div>
-
-    <!-- KPI ROW -->
-    <div class="section-title" id="detailTitle">📊 สรุปผลประกอบการ</div>
-    <div class="kpi-grid" id="kpiGrid"></div>
-
-    <!-- CHARTS ROW 1 -->
-    <div class="section-title">💰 รายได้ตามประเภทและสัญชาติ</div>
-    <div class="two-col">
-      <div class="card">
-        <div class="card-title"><span class="dot"></span>รายได้ OPD แบ่งตามสัญชาติ</div>
-        <div class="chart-wrap" style="height:220px"><canvas id="opdNatChart"></canvas></div>
-        <ul class="donut-legend" id="natLegend"></ul>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="dot blue"></span>รายได้ OPD vs IPD</div>
-        <div class="chart-wrap" style="height:220px"><canvas id="revSplitChart"></canvas></div>
-        <ul class="donut-legend" id="revSplitLegend"></ul>
-      </div>
-    </div>
-
-    <!-- BU REVENUE CHART -->
-    <div class="section-title">🏥 รายได้ OPD รายหน่วยบริการ (Daily Revenue)</div>
-    <div class="card">
-      <div class="card-title"><span class="dot blue"></span>Daily Revenue vs เป้าวันนี้ แยกตาม BU</div>
-      <div class="chart-wrap" id="buChartWrap" style="min-height:420px"><canvas id="buChart"></canvas></div>
-    </div>
-
-    <!-- MTD PROGRESS -->
-    <div class="section-title">📈 MTD Revenue vs Monthly Forecast (สะสมเดือน)</div>
-    <div class="card">
-      <div class="card-title"><span class="dot gold"></span>ความคืบหน้าสะสมรายเดือน (%MTD / เป้ารายเดือน)</div>
-      <div class="chart-wrap" id="mtdChartWrap" style="min-height:420px"><canvas id="mtdChart"></canvas></div>
-    </div>
-
-    <!-- WARD CENSUS -->
-    <div class="section-title">🛏 Ward Census</div>
-    <div class="card">
-      <div class="card-title"><span class="dot blue"></span>จำนวนผู้ป่วยบนวอร์ด</div>
-      <div class="ward-grid" id="wardGrid"></div>
-    </div>
-
-    <!-- BU TABLE -->
-    <div class="section-title">📋 ตาราง BU Performance (OPD Location)</div>
-    <div class="card" style="overflow-x:auto">
-      <table class="tbl" id="buTable">
-        <thead>
-          <tr>
-            <th>Business Unit</th><th>Visit</th>
-            <th>Daily Rev (฿)</th><th>เป้าวัน (฿)</th>
-            <th>Daily Gain/Lost</th><th>% Diff</th>
-            <th>MTD Rev (฿)</th><th>Monthly Target (฿)</th><th>MTD %</th>
-          </tr>
-        </thead>
-        <tbody id="buTableBody"></tbody>
-      </table>
-    </div>
-
-    <!-- DISCHARGE + ADMISSION -->
-    <div class="section-title">🔄 IPD Discharge & New Admission</div>
-    <div class="two-col">
-      <div class="card">
-        <div class="card-title"><span class="dot gold"></span>Discharge วันนี้</div>
-        <div class="kpi-grid" style="gap:10px">
-          <div class="kpi gold" style="padding:14px">
-            <div class="kpi-label">Discharge รวม</div>
-            <div class="kpi-value gold" id="kDisTotal">-</div>
-            <div class="kpi-sub" id="kDisSub">-</div>
-          </div>
-          <div class="kpi" style="padding:14px">
-            <div class="kpi-label">ยอดเรียกเก็บ</div>
-            <div class="kpi-value green" id="kDisBill">-</div>
-            <div class="kpi-sub" id="kDisAvg">-</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="dot"></span>New Admission วันนี้</div>
-        <div class="kpi-grid" style="gap:10px">
-          <div class="kpi" style="padding:14px">
-            <div class="kpi-label">Admit รวม</div>
-            <div class="kpi-value green" id="kAdmTotal">-</div>
-            <div class="kpi-sub" id="kAdmSub">-</div>
-          </div>
-          <div class="kpi blue" style="padding:14px">
-            <div class="kpi-label">OPD New Patient</div>
-            <div class="kpi-value blue" id="kNewPt">-</div>
-            <div class="kpi-sub" id="kOldPt">-</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /detail -->
-</div><!-- /container -->
-
-<footer>
-  WMC Monthly Management Report &nbsp;|&nbsp; กรกฎาคม 2569 &nbsp;|&nbsp;
-  Generated by WMC AI Dashboard &nbsp;|&nbsp; World Medical Hospital
-</footer>
+<p class="hint" id="hint"></p>
 
 <script>
+(function () {
+  var EN = ["","January","February","March","April","May","June",
+            "July","August","September","October","November","December"];
+  var TH = ["","มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+            "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 
-const RAW = {"2026-07-01":{"date":"2026-07-01","totalVisit":244,"opdVisit":230,"ipdAdmit":14,"newPt":22,"oldPt":208,"counterVisit":270,"billAmt":1198039.15,"avgBill":5208.86586956521,"opdTotal":1198039.15,"opdThai":886677.0,"opdInter":296494.0,"chkTotal":0.0,"ipdRev":1439853.35,"ipdInterBill":0.0,"ipdThaiBill":0.0,"opdInterBill":0.0,"opdThaiBill":0.0,"totalBilled":1853770.0,"totalBillsN":327,"wardTotal":45,"wardOnWard":[{"name":"Ward 8 (The World Superior Level)","yesterday":8,"discharge":-1,"newAdmit":4,"transfer":1,"today":12,"wardRev":263630.8},{"name":"Ward 10 (The World Superior  Level )","yesterday":12,"discharge":0,"newAdmit":0,"transfer":0,"today":12,"wardRev":684275.5},{"name":"Ward Intensive Care (ICU)","yesterday":1,"discharge":0,"newAdmit":0,"transfer":-1,"today":0,"wardRev":0.0},{"name":"Ward 15 (The World Superior  Level )","yesterday":5,"discharge":-3,"newAdmit":2,"transfer":0,"today":4,"wardRev":71512.4},{"name":"Ward 16 (The World Superior  Level )","yesterday":12,"discharge":-3,"newAdmit":8,"transfer":0,"today":17,"wardRev":420434.65}],"dischargeTotal":7,"dischargeBill":556912.0,"admitTotal":14,"admitThai":13,"admitInter":1,"admitNew":3,"admitOld":11,"bu":[{"name":"Advance Pediatrics","visits":9,"dailyRev":12014.0,"dailyFc":65968.0,"mtdRev":12014.0,"monthlyFc":2045000.0},{"name":"Advance Skin Center","visits":5,"dailyRev":8258.0,"dailyFc":40000.0,"mtdRev":8258.0,"monthlyFc":1240000.0},{"name":"Advanced Gastroenterology","visits":5,"dailyRev":18172.0,"dailyFc":42742.0,"mtdRev":18172.0,"monthlyFc":1325000.0},{"name":"Advanced Ophthalmology","visits":12,"dailyRev":11939.0,"dailyFc":48677.0,"mtdRev":11939.0,"monthlyFc":1509000.0},{"name":"Advanced Orthopedics","visits":20,"dailyRev":117824.0,"dailyFc":115355.0,"mtdRev":117824.0,"monthlyFc":3576000.0},{"name":"Advanced Rhino-otolaryngology","visits":15,"dailyRev":56557.0,"dailyFc":60806.0,"mtdRev":56557.0,"monthlyFc":1885000.0},{"name":"Advanced Surgery","visits":24,"dailyRev":70073.0,"dailyFc":126258.0,"mtdRev":70073.0,"monthlyFc":3914000.0},{"name":"Advanced Women s Health","visits":12,"dailyRev":38463.0,"dailyFc":43161.0,"mtdRev":38463.0,"monthlyFc":1338000.0},{"name":"Aesthetic Center","visits":0,"dailyRev":0.0,"dailyFc":41935.0,"mtdRev":0.0,"monthlyFc":1300000.0},{"name":"Cardiometabolic Program","visits":9,"dailyRev":24111.0,"dailyFc":14548.0,"mtdRev":24111.0,"monthlyFc":451000.0},{"name":"Check up Center","visits":13,"dailyRev":59180.0,"dailyFc":177419.0,"mtdRev":59180.0,"monthlyFc":5500000.0},{"name":"Emergency","visits":10,"dailyRev":54925.0,"dailyFc":85419.0,"mtdRev":54925.0,"monthlyFc":2648000.0},{"name":"Imaging Center","visits":4,"dailyRev":104412.0,"dailyFc":12903.0,"mtdRev":104412.0,"monthlyFc":400000.0},{"name":"Internal Medicine","visits":29,"dailyRev":153178.0,"dailyFc":168226.0,"mtdRev":153178.0,"monthlyFc":5215000.0},{"name":"Kidney Dialysis","visits":20,"dailyRev":62620.0,"dailyFc":63645.0,"mtdRev":62620.0,"monthlyFc":1973000.0},{"name":"Medical Rehabilitation","visits":24,"dailyRev":56024.0,"dailyFc":41194.0,"mtdRev":56024.0,"monthlyFc":1277000.0},{"name":"Metro health by WMC regenerative medicine","visits":8,"dailyRev":151990.0,"dailyFc":288677.0,"mtdRev":151990.0,"monthlyFc":8949000.0},{"name":"Night Clinic","visits":10,"dailyRev":39648.0,"dailyFc":19290.0,"mtdRev":39648.0,"monthlyFc":598000.0},{"name":"WMC Clinic","visits":27,"dailyRev":40678.0,"dailyFc":29032.0,"mtdRev":40678.0,"monthlyFc":900000.0},{"name":"WMC Dental Center","visits":7,"dailyRev":34198.0,"dailyFc":45161.0,"mtdRev":34198.0,"monthlyFc":1400000.0},{"name":"WMC New Frontier Cancer Center","visits":2,"dailyRev":21190.0,"dailyFc":0.0,"mtdRev":21190.0,"monthlyFc":0.0},{"name":"World ART Center","visits":2,"dailyRev":33933.0,"dailyFc":25806.0,"mtdRev":33933.0,"monthlyFc":800000.0},{"name":"World Cosmetic Surgery Center","visits":0,"dailyRev":0.0,"dailyFc":0.0,"mtdRev":0.0,"monthlyFc":0.0},{"name":"World Diabetic Foot Center","visits":17,"dailyRev":115038.0,"dailyFc":129032.0,"mtdRev":115038.0,"monthlyFc":4000000.0},{"name":"World Medical Nichada Clinic","visits":7,"dailyRev":13265.0,"dailyFc":13419.0,"mtdRev":13265.0,"monthlyFc":416000.0}]},"2026-07-02":{"date":"2026-07-02","totalVisit":243,"opdVisit":231,"ipdAdmit":12,"newPt":30,"oldPt":201,"counterVisit":245,"billAmt":1057406.3,"avgBill":4577.51645021645,"opdTotal":1057406.3,"opdThai":730957.0,"opdInter":324686.0,"chkTotal":0.0,"ipdRev":1144967.2,"ipdInterBill":0.0,"ipdThaiBill":0.0,"opdInterBill":0.0,"opdThaiBill":0.0,"totalBilled":1981719.0,"totalBillsN":348,"wardTotal":38,"wardOnWard":[{"name":"Ward 8 (The World Superior Level)","yesterday":12,"discharge":-5,"newAdmit":0,"transfer":0,"today":7,"wardRev":134369.4},{"name":"Ward 10 (The World Superior  Level )","yesterday":12,"discharge":0,"newAdmit":0,"transfer":0,"today":12,"wardRev":535728.0},{"name":"Ward 6A (The World Superior  Level )","yesterday":0,"discharge":0,"newAdmit":1,"transfer":0,"today":1,"wardRev":17638.0},{"name":"Ward 15 (The World Superior  Level )","yesterday":4,"discharge":-2,"newAdmit":6,"transfer":0,"today":8,"wardRev":206770.2},{"name":"Ward 16 (The World Superior  Level )","yesterday":17,"discharge":-12,"newAdmit":5,"transfer":0,"today":10,"wardRev":250461.6}],"dischargeTotal":19,"dischargeBill":861716.0,"admitTotal":12,"admitThai":12,"admitInter":0,"admitNew":3,"admitOld":9,"bu":[{"name":"Advance Pediatrics","visits":10,"dailyRev":70844.0,"dailyFc":65968.0,"mtdRev":82859.0,"monthlyFc":2045000.0},{"name":"Advance Skin Center","visits":6,"dailyRev":21200.0,"dailyFc":40000.0,"mtdRev":29457.0,"monthlyFc":1240000.0},{"name":"Advanced Gastroenterology","visits":1,"dailyRev":3430.0,"dailyFc":42742.0,"mtdRev":21602.0,"monthlyFc":1325000.0},{"name":"Advanced Ophthalmology","visits":13,"dailyRev":30889.0,"dailyFc":48677.0,"mtdRev":42829.0,"monthlyFc":1509000.0},{"name":"Advanced Orthopedics","visits":20,"dailyRev":61697.0,"dailyFc":115355.0,"mtdRev":179521.0,"monthlyFc":3576000.0},{"name":"Advanced Rhino-otolaryngology","visits":14,"dailyRev":59135.0,"dailyFc":60806.0,"mtdRev":115692.0,"monthlyFc":1885000.0},{"name":"Advanced Surgery","visits":26,"dailyRev":146573.0,"dailyFc":126258.0,"mtdRev":216646.0,"monthlyFc":3914000.0},{"name":"Advanced Women s Health","visits":7,"dailyRev":12729.0,"dailyFc":43161.0,"mtdRev":51191.0,"monthlyFc":1338000.0},{"name":"Aesthetic Center","visits":0,"dailyRev":0.0,"dailyFc":41935.0,"mtdRev":0.0,"monthlyFc":1300000.0},{"name":"Cardiometabolic Program","visits":3,"dailyRev":35865.0,"dailyFc":14548.0,"mtdRev":59976.0,"monthlyFc":451000.0},{"name":"Check up Center","visits":17,"dailyRev":53724.0,"dailyFc":177419.0,"mtdRev":112904.0,"monthlyFc":5500000.0},{"name":"Emergency","visits":11,"dailyRev":37515.0,"dailyFc":85419.0,"mtdRev":92440.0,"monthlyFc":2648000.0},{"name":"Imaging Center","visits":6,"dailyRev":95000.0,"dailyFc":12903.0,"mtdRev":199412.0,"monthlyFc":400000.0},{"name":"Internal Medicine","visits":28,"dailyRev":92124.0,"dailyFc":168226.0,"mtdRev":245303.0,"monthlyFc":5215000.0},{"name":"Kidney Dialysis","visits":26,"dailyRev":97111.0,"dailyFc":63645.0,"mtdRev":159730.0,"monthlyFc":1973000.0},{"name":"Medical Rehabilitation","visits":16,"dailyRev":36937.0,"dailyFc":41194.0,"mtdRev":92961.0,"monthlyFc":1277000.0},{"name":"Metro health by WMC regenerative medicine","visits":10,"dailyRev":43091.0,"dailyFc":288677.0,"mtdRev":195081.0,"monthlyFc":8949000.0},{"name":"Night Clinic","visits":2,"dailyRev":1385.0,"dailyFc":19290.0,"mtdRev":41033.0,"monthlyFc":598000.0},{"name":"WMC Clinic","visits":20,"dailyRev":27460.0,"dailyFc":29032.0,"mtdRev":68138.0,"monthlyFc":900000.0},{"name":"WMC Dental Center","visits":7,"dailyRev":56965.0,"dailyFc":45161.0,"mtdRev":91163.0,"monthlyFc":1400000.0},{"name":"WMC New Frontier Cancer Center","visits":1,"dailyRev":10000.0,"dailyFc":0.0,"mtdRev":31190.0,"monthlyFc":0.0},{"name":"World ART Center","visits":1,"dailyRev":1290.0,"dailyFc":25806.0,"mtdRev":35223.0,"monthlyFc":800000.0},{"name":"World Cosmetic Surgery Center","visits":0,"dailyRev":0.0,"dailyFc":0.0,"mtdRev":0.0,"monthlyFc":0.0},{"name":"World Diabetic Foot Center","visits":17,"dailyRev":118419.0,"dailyFc":129032.0,"mtdRev":233457.0,"monthlyFc":4000000.0},{"name":"World Medical Nichada Clinic","visits":3,"dailyRev":17086.0,"dailyFc":13419.0,"mtdRev":30351.0,"monthlyFc":416000.0}]}};
-const WARD_JUNE9 = [{"name":"Ward 8","yesterday":7,"discharge":4,"admit":2,"today":5},{"name":"Ward 10","yesterday":14,"discharge":0,"admit":0,"today":14},{"name":"ICU","yesterday":1,"discharge":0,"admit":1,"today":2},{"name":"Ward 15","yesterday":8,"discharge":2,"admit":6,"today":12},{"name":"Ward 16","yesterday":11,"discharge":5,"admit":10,"today":16}];
+  var now  = new Date();
+  var y    = now.getFullYear();
+  var mo   = now.getMonth() + 1;
+  var d    = now.getDate();
+  var be   = y + 543;
+  var v    = '' + y + ('0'+mo).slice(-2) + ('0'+d).slice(-2);
+  var fname = 'WMC_Monthly_Dashboard_' + EN[mo] + y + '.html';
+  var url   = fname + '?v=' + v;
 
+  // Update badge
+  document.getElementById('badge').textContent =
+    TH[mo] + ' ' + be + '  ·  วันที่ ' + d;
 
-// ─── Utilities ───
-const fmt  = n => n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toLocaleString();
-const fmt2 = n => n?n.toLocaleString('th-TH'):'0';
-const thDOW = ['วันอาทิตย์','วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์','วันเสาร์'];
+  // Update button
+  document.getElementById('btn').href = url;
+  document.getElementById('btn-text').textContent =
+    '📊  เปิด Dashboard ' + TH[mo] + ' ' + be;
 
-// ─── MTD Header ───
-(function(){
-  const dates=Object.keys(RAW).sort();
-  let opd=0,ipd=0,billed=0,rev=0;
-  dates.forEach(d=>{const r=RAW[d];opd+=r.opdVisit;ipd+=r.ipdAdmit;billed+=r.totalBilled;rev+=r.opdTotal+r.ipdRev;});
-  document.getElementById('mtdRow').innerHTML=`
-    <div class="mtd-item"><div class="mtd-val">${opd.toLocaleString()}</div><div class="mtd-lbl">MTD OPD</div></div>
-    <div class="mtd-item"><div class="mtd-val">${ipd}</div><div class="mtd-lbl">MTD IPD</div></div>
-    <div class="mtd-item"><div class="mtd-val">${fmt(billed)}</div><div class="mtd-lbl">MTD Billed</div></div>
-    <div class="mtd-item"><div class="mtd-val">${fmt(rev)}</div><div class="mtd-lbl">MTD Revenue</div></div>`;
+  document.getElementById('hint').textContent =
+    'ข้อมูล ณ วันที่ ' + ('0'+d).slice(-2) + '/' + ('0'+mo).slice(-2) + '/' + be +
+    '\nหากไม่เปิดอัตโนมัติ กดปุ่มด้านบน';
+
+  // Animate progress ring & auto-redirect in 2s
+  var ring = document.getElementById('ring');
+  setTimeout(function() {
+    ring.style.strokeDashoffset = '0';
+  }, 50);
+  var t = setTimeout(function() {
+    window.location.replace(url);
+  }, 2100);
+
+  // Manual tap cancels countdown and goes immediately
+  document.getElementById('btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    clearTimeout(t);
+    window.location.href = url;
+  });
 })();
-
-// ─── Calendar ───
-function buildCalendar(){
-  const grid=document.getElementById('calGrid');
-  grid.innerHTML='';
-  [['อา',true],['จ',false],['อ',false],['พ',false],['พฤ',false],['ศ',false],['ส',true]].forEach(([t,w])=>{
-    const h=document.createElement('div');h.className='cdow'+(w?' wknd':'');h.textContent=t;grid.appendChild(h);
-  });
-  const START_DOW=3; // July 1 2026 = Wednesday
-  for(let i=0;i<START_DOW;i++){const e=document.createElement('div');e.className='cday empty';grid.appendChild(e);}
-  for(let d=1;d<=31;d++){
-    const dk=`2026-07-${String(d).padStart(2,'0')}`;
-    const data=RAW[dk];
-    const dow=(START_DOW+d-1)%7;
-    const isWk=(dow===0||dow===6);
-    let cls='cday'+(data?' hasdata':' nodata')+(isWk?' wkndday':'');
-    const cell=document.createElement('div');cell.className=cls;cell.dataset.date=dk;
-    let badge='';if(dow===6)badge='<span class="dbadge sat">ส</span>';if(dow===0)badge='<span class="dbadge sun">อา</span>';
-    if(data){
-      const fc=data.bu.reduce((s,b)=>s+(b.dailyFc||0),0);
-      const rv=data.bu.reduce((s,b)=>s+b.dailyRev,0);
-      const pct=fc>0?Math.min(rv/fc*100,130):0;
-      cell.innerHTML=`
-        <div class="dnum">${d}${badge}</div>
-        <div class="dstats">
-          <div class="dopd">👤 ${data.opdVisit} OPD</div>
-          <div class="dipd">🛏 ${data.ipdAdmit} IPD</div>
-          <div class="dbilled" style="color:var(--green)">${fmt(data.opdTotal)}</div>
-        </div>
-        <div class="dbar"><div class="dbarfill" style="width:${pct.toFixed(0)}%"></div></div>`;
-      cell.addEventListener('click',()=>showDay(dk));
-    }else{
-      cell.innerHTML=`<div class="dnum">${d}${badge}</div>`;
-    }
-    grid.appendChild(cell);
-  }
-}
-
-// ─── Charts instances ───
-let C_nat=null,C_rev=null,C_bu=null,C_mtd=null;
-
-function destroyCharts(){
-  [C_nat,C_rev,C_bu,C_mtd].forEach(c=>{if(c)c.destroy();});
-  C_nat=C_rev=C_bu=C_mtd=null;
-}
-
-// ─── Show Day ───
-function showDay(dk){
-  const d=RAW[dk];if(!d) return;
-  document.querySelectorAll('.cday.active').forEach(el=>el.classList.remove('active'));
-  const cell=document.querySelector(`.cday[data-date="${dk}"]`);
-  if(cell)cell.classList.add('active');
-  const det=document.getElementById('detail');
-  det.style.display='block';
-  setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'start'}),60);
-
-  // Date label
-  const [y,m,dy]=dk.split('-');
-  const dt=new Date(+y,+m-1,+dy);
-  const thDowStr=thDOW[dt.getDay()];
-  document.getElementById('detailTitle').textContent=`📊 สรุปผลประกอบการ — ${thDowStr}ที่ ${+dy} กรกฎาคม 2569`;
-
-  // KPI cards
-  const avgOPD = d.opdVisit>0 ? d.opdTotal/d.opdVisit : 0;
-  document.getElementById('kpiGrid').innerHTML=`
-    <div class="kpi">
-      <div class="kpi-label">รายรับ OPD วันนี้</div>
-      <div class="kpi-value green">${fmt(d.opdTotal)}</div>
-      <div class="kpi-sub">฿${fmt2(d.opdTotal)} &nbsp;|&nbsp; ${d.opdVisit} ราย</div>
-    </div>
-    <div class="kpi blue">
-      <div class="kpi-label">รายรับ IPD วันนี้</div>
-      <div class="kpi-value blue">${fmt(d.ipdRev)}</div>
-      <div class="kpi-sub">฿${fmt2(Math.round(d.ipdRev))}</div>
-    </div>
-    <div class="kpi gold">
-      <div class="kpi-label">Cashier Billed วันนี้</div>
-      <div class="kpi-value gold">${fmt(d.totalBilled)}</div>
-      <div class="kpi-sub">฿${fmt2(d.totalBilled)} &nbsp;|&nbsp; ${d.totalBillsN} ใบ</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">OPD Visits รวม</div>
-      <div class="kpi-value green">${d.opdVisit}</div>
-      <div class="kpi-sub">ใหม่ ${d.newPt} &nbsp;|&nbsp; เก่า ${d.oldPt}</div>
-    </div>
-    <div class="kpi blue">
-      <div class="kpi-label">IPD Admit วันนี้</div>
-      <div class="kpi-value blue">${d.ipdAdmit}</div>
-      <div class="kpi-sub">Counter Visit ${d.counterVisit}</div>
-    </div>
-    <div class="kpi teal">
-      <div class="kpi-label">ผู้ป่วยบนวอร์ด</div>
-      <div class="kpi-value teal">${d.wardTotal>0?d.wardTotal:'N/A'}</div>
-      <div class="kpi-sub">Discharge วันนี้ ${d.dischargeTotal} ราย</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Counter Visit</div>
-      <div class="kpi-value green">${d.counterVisit}</div>
-      <div class="kpi-sub">AVG/Bill ฿${fmt2(Math.round(d.avgBill))}</div>
-    </div>
-    <div class="kpi gold">
-      <div class="kpi-label">AVG OPD/ราย</div>
-      <div class="kpi-value gold">฿${fmt2(Math.round(avgOPD))}</div>
-      <div class="kpi-sub">Billed ${fmt2(d.totalBillsN)} ใบ</div>
-    </div>`;
-
-  // Discharge / Admission
-  document.getElementById('kDisTotal').textContent=d.dischargeTotal;
-  document.getElementById('kDisSub').textContent=`Discharge วันนี้`;
-  document.getElementById('kDisBill').textContent='฿'+fmt2(d.dischargeBill);
-  document.getElementById('kDisAvg').textContent=d.dischargeTotal>0?`AVG ฿${fmt2(Math.round(d.dischargeBill/d.dischargeTotal))}/ราย`:'';
-  document.getElementById('kAdmTotal').textContent=d.ipdAdmit;
-  document.getElementById('kAdmSub').textContent=`IPD Admits วันนี้`;
-  document.getElementById('kNewPt').textContent=d.newPt;
-  document.getElementById('kOldPt').textContent=`เก่า ${d.oldPt} ราย`;
-
-  destroyCharts();
-  setTimeout(()=>{
-    buildOpdNat(d);
-    buildRevSplit(d);
-    buildBuChart(d.bu);
-    buildMtdChart(d.bu);
-    buildWard(d,dk);
-    populateBuSelect(d.bu);
-  buildBuTable(d.bu);
-  },80);
-}
-
-function closeDetail(){
-  document.getElementById('detail').style.display='none';
-  destroyCharts();
-  document.querySelectorAll('.cday.active').forEach(el=>el.classList.remove('active'));
-}
-
-// ─── OPD Nationality Donut ───
-function buildOpdNat(d){
-  const vals=[d.opdThai,d.opdInter];
-  const other=Math.max(0,d.opdTotal-d.opdThai-d.opdInter);
-  if(other>0)vals.push(other);
-  const labels=[`Thai (฿${fmt2(d.opdThai)})`,`Inter (฿${fmt2(d.opdInter)})`];
-  if(other>0)labels.push(`Other (฿${fmt2(Math.round(other))})`);
-  const colors=['#1a7a4a','#1565c0','#c8960c'];
-  const ctx=document.getElementById('opdNatChart').getContext('2d');
-  C_nat=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:colors,borderWidth:2,borderColor:'#fff',hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ฿${c.parsed.toLocaleString('th-TH')} (${(c.parsed/vals.reduce((a,b)=>a+b)*100).toFixed(1)}%)`}}}}});
-  const ul=document.getElementById('natLegend');ul.innerHTML='';
-  labels.forEach((l,i)=>{
-    const pct=(vals[i]/vals.reduce((a,b)=>a+b)*100).toFixed(1);
-    ul.innerHTML+=`<li><span class="swatch" style="background:${colors[i]}"></span><strong>${l}</strong><span style="margin-left:auto">${pct}%</span></li>`;
-  });
-}
-
-// ─── Revenue Split Donut ───
-function buildRevSplit(d){
-  const labels=[`OPD Revenue (฿${fmt2(Math.round(d.opdTotal))})`,`IPD Revenue (฿${fmt2(Math.round(d.ipdRev))})`];
-  const vals=[d.opdTotal,d.ipdRev];
-  const colors=['#1a7a4a','#1565c0'];
-  const ctx=document.getElementById('revSplitChart').getContext('2d');
-  C_rev=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:colors,borderWidth:2,borderColor:'#fff',hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ฿${c.parsed.toLocaleString('th-TH')} (${(c.parsed/vals.reduce((a,b)=>a+b)*100).toFixed(1)}%)`}}}}});
-  const ul=document.getElementById('revSplitLegend');ul.innerHTML='';
-  labels.forEach((l,i)=>{
-    const pct=(vals[i]/vals.reduce((a,b)=>a+b)*100).toFixed(1);
-    ul.innerHTML+=`<li><span class="swatch" style="background:${colors[i]}"></span><strong>${l}</strong><span style="margin-left:auto">${pct}%</span></li>`;
-  });
-}
-
-// ─── BU Daily Revenue vs Forecast ───
-function buildBuChart(bu){
-  const sorted=[...bu].sort((a,b)=>b.dailyRev-a.dailyRev);
-  // Dynamic height: 38px per BU (2 datasets) + 80px header/legend
-  const dynH=Math.max(420, sorted.length*38+80);
-  document.getElementById('buChartWrap').style.height=dynH+'px';
-  const ctx=document.getElementById('buChart').getContext('2d');
-  C_bu=new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels:sorted.map(b=>b.name),
-      datasets:[
-        {label:'Daily Revenue',data:sorted.map(b=>b.dailyRev),
-         backgroundColor:sorted.map(b=>b.dailyRev>=b.dailyFc?'rgba(26,122,74,.85)':'rgba(198,40,40,.8)'),
-         borderRadius:6,borderSkipped:false},
-        {label:'Daily Forecast',data:sorted.map(b=>b.dailyFc),
-         backgroundColor:'rgba(245,184,0,.5)',borderRadius:6,borderSkipped:false}
-      ]
-    },
-    options:{
-      indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>` ฿${c.parsed.x.toLocaleString('th-TH')}`}}},
-      scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:11}}}}
-    }
-  });
-}
-
-// ─── MTD Progress ───
-function buildMtdChart(bu){
-  const sorted=[...bu].sort((a,b)=>(b.mtdRev/b.monthlyFc)-(a.mtdRev/a.monthlyFc));
-  const pcts=sorted.map(b=>+(b.mtdRev/b.monthlyFc*100).toFixed(1));
-  // Dynamic height: 30px per BU (1 dataset) + 60px padding
-  const dynH=Math.max(420, sorted.length*30+60);
-  document.getElementById('mtdChartWrap').style.height=dynH+'px';
-  const ctx=document.getElementById('mtdChart').getContext('2d');
-  C_mtd=new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels:sorted.map(b=>b.name),
-      datasets:[{
-        label:'MTD % ของเป้ารายเดือน',data:pcts,
-        backgroundColor:pcts.map(p=>p>=50?'rgba(26,122,74,.8)':p>=30?'rgba(200,150,12,.8)':'rgba(198,40,40,.8)'),
-        borderRadius:6,borderSkipped:false
-      }]
-    },
-    options:{
-      indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x}% ของเป้ารายเดือน`}}},
-      scales:{x:{max:120,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:11}}}}
-    }
-  });
-}
-
-// ─── Ward Census ───
-function buildWard(d,dk){
-  const grid=document.getElementById('wardGrid');grid.innerHTML='';
-  // Priority 1: wardOnWard array (full per-ward breakdown)
-  if(d.wardOnWard && d.wardOnWard.length>0){
-    d.wardOnWard.forEach(w=>{
-      const shortName=w.name.replace(/\(.*?\)/g,'').replace('The World Superior Level','').trim();
-      const dcAbs=Math.abs(w.discharge);
-      const revHtml=w.wardRev&&w.wardRev>0
-        ?`<div class="ward-rev">฿${fmt2(Math.round(w.wardRev))}</div>`:'';
-      grid.innerHTML+=`<div class="ward-box">
-        <div class="num" style="color:var(--blue)">${w.today}</div>
-        <div class="lbl">${shortName}</div>
-        ${revHtml}
-        <div class="sub">+${w.newAdmit} รับ / -${dcAbs} dc / เมื่อวาน ${w.yesterday}</div>
-      </div>`;
-    });
-    const tot=d.wardOnWard.reduce((s,w)=>s+w.today,0);
-    const totRev=d.wardOnWard.reduce((s,w)=>s+(w.wardRev||0),0);
-    const totRevHtml=totRev>0?`<div class="ward-rev">฿${fmt2(Math.round(totRev))}</div>`:'';
-    grid.innerHTML+=`<div class="ward-box" style="background:linear-gradient(135deg,#d4f5e2,#fff);border-color:#86efac">
-      <div class="num" style="color:var(--green)">${tot}</div>
-      <div class="lbl" style="color:var(--green)">รวมทุก Ward</div>
-      ${totRevHtml}
-      <div class="sub">ณ 04:00 น.</div>
-    </div>`;
-  // Priority 2: legacy June 9 hardcoded data
-  }else if(dk==='2026-07-09'){
-    WARD_JUNE9.forEach(w=>{
-      grid.innerHTML+=`<div class="ward-box"><div class="num">${w.today}</div><div class="lbl">${w.name}</div><div class="sub">+${w.admit} รับใหม่ / -${w.discharge} discharge</div></div>`;
-    });
-    const tot=WARD_JUNE9.reduce((s,w)=>s+w.today,0);
-    grid.innerHTML+=`<div class="ward-box" style="background:linear-gradient(135deg,#d4f5e2,#fff);border-color:#86efac"><div class="num" style="color:var(--green)">${tot}</div><div class="lbl" style="color:var(--green)">รวมทุก Ward</div><div class="sub">ณ 04:00 น.</div></div>`;
-  // Priority 3: wardTotal summary only
-  }else if(d.wardTotal>0){
-    grid.innerHTML=`<div class="ward-box" style="background:linear-gradient(135deg,#d4f5e2,#fff);border-color:#86efac">
-      <div class="num" style="color:var(--green)">${d.wardTotal}</div>
-      <div class="lbl" style="color:var(--green)">รวมทุก Ward</div>
-      <div class="sub">ข้อมูลสรุป (ไม่มีรายละเอียดรายวอร์ด)</div>
-    </div>`;
-  }else{
-    grid.innerHTML=`<div style="color:var(--sub);font-size:.82rem;padding:16px;">⚠️ ไม่มีข้อมูล Ward Census สำหรับวันนี้</div>`;
-  }
-}
-
-// ─── BU Table ───
-let allRows=[];
-function buildBuTable(bu){
-  const tbody=document.getElementById('buTableBody');
-  allRows=bu.map(b=>{
-    const diff=b.dailyRev-b.dailyFc;
-    const pct=b.dailyFc>0?((diff/b.dailyFc)*100).toFixed(0):0;
-    const mtdPct=b.monthlyFc>0?(b.mtdRev/b.monthlyFc*100).toFixed(1):0;
-    const mtdColor=+mtdPct>=50?'green':+mtdPct>=30?'gold':'red';
-    const isPos=diff>=0;
-    return `<tr data-name="${b.name.toLowerCase()}" data-pos="${isPos?'pos':'neg'}">
-      <td>${b.name}</td><td>${b.visits}</td>
-      <td style="font-weight:600;color:${isPos?'var(--green)':'var(--red)'}">฿${fmt2(b.dailyRev)}</td>
-      <td>฿${fmt2(b.dailyFc)}</td>
-      <td><span class="badge ${isPos?'pos':'neg'}">${isPos?'+':''}฿${fmt2(Math.round(diff))}</span></td>
-      <td><span class="badge ${isPos?'pos':'neg'}">${isPos?'+':''}${pct}%</span></td>
-      <td>฿${fmt2(b.mtdRev)}</td><td>฿${fmt2(b.monthlyFc)}</td>
-      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill ${mtdColor}" style="width:${Math.min(+mtdPct,100)}%"></div></div>
-        <span style="font-size:.72rem;font-weight:700">${mtdPct}%</span></div></td>
-    </tr>`;
-  });
-  tbody.innerHTML=allRows.join('');
-}
-
-// ─── Filter ───
-function populateBuSelect(bu){
-  const sel=document.getElementById('buFilter');
-  // keep first option
-  while(sel.options.length>1) sel.remove(1);
-  bu.forEach(b=>{
-    const o=document.createElement('option');
-    o.value=b.name.toLowerCase();
-    o.textContent=b.name;
-    sel.appendChild(o);
-  });
-}
-function filterTable(){
-  const q=document.getElementById('buFilter').value;
-  const show=document.getElementById('showFilter').value;
-  document.querySelectorAll('#buTableBody tr').forEach(r=>{
-    const nm=q===''||r.dataset.name===q;
-    const pm=show==='all'||(show==='pos'&&r.dataset.pos==='pos')||(show==='neg'&&r.dataset.pos==='neg');
-    r.style.display=(nm&&pm)?'':'none';
-  });
-}
-function resetFilter(){
-  document.getElementById('buFilter').value='';
-  document.getElementById('showFilter').value='all';
-  filterTable();
-}
-
-// ─── Init ───
-buildCalendar();
 </script>
 </body>
 </html>
