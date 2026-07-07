@@ -15,7 +15,7 @@ import urllib.request, urllib.error, urllib.parse
 GITHUB_TOKEN  = os.getenv("WMC_GH_TOKEN", "")
 GITHUB_REPO   = "Adisornpatradul/wmc-dashboard"
 SITE_URL      = "https://adisornpatradul.github.io/wmc-dashboard/"
-LINE_TOKEN    = "RaQUyWxjLT5iLucDDezaZkHIAzne/TdbWdSDezUo8TVRNHOtOiw2b07K1Gk8W/zURnFMciijW433U0WxPdAUZz4OCSUxfjLqCjswXrF9Cd6eyyunbpp3YMqj24OVtuMY0U6TR6CP5WAJ4tzHSzibggdB04t89/1O/w1cDnyilFU="
+LINE_TOKEN    = os.getenv("WMC_LINE_TOKEN", "")
 LINE_GROUPS   = [
     ("HOD IPD", "C5db527a782afe0656e0a56c7c300d4e0"),
     ("HEC WMC", "C3f444ad88df282e1fd0853c63442d097"),
