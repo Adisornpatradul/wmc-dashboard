@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """
 WMC Auto Pipeline — ดึง Excel จาก Gmail อัตโนมัติ แล้ว run dashboard
-สำหรับ Scheduled Task: credentials อ่านจาก Environment Variables
+ไม่ต้องวางไฟล์เอง ไม่ต้องพิม run dashboard
+
+วิธีใช้:
+  python3 wmc_auto.py                    # ดึง Gmail อัตโนมัติ
+  python3 wmc_auto.py --date 2026-06-28  # ระบุวันที่เอง (ถ้าต้องการ)
 """
 
 import imaplib
 import email
 import email.header
+import email.utils
+import calendar
 import os
 import sys
 import re
@@ -17,7 +23,6 @@ import urllib.request
 from datetime import datetime, timedelta
 
 # =================== CONFIG ===================
-# อ่านจาก env var (set โดย scheduled task prompt)
 GMAIL_USER         = os.getenv("WMC_GMAIL_USER", "patradul.a@gmail.com")
 GMAIL_APP_PASSWORD = os.getenv("WMC_GMAIL_PASSWORD", "")
 CALLCENTER_FROM    = "WMC-Callcenter@wmchospital.com"
@@ -45,7 +50,9 @@ def download_excel_from_gmail():
     print("📧 กำลังเชื่อมต่อ Gmail...")
 
     if not GMAIL_APP_PASSWORD:
-        print("❌ ยังไม่ได้ตั้ง WMC_GMAIL_PASSWORD environment variable")
+        print("❌ ยังไม่ได้ตั้ง GMAIL_APP_PASSWORD ใน wmc_auto.py")
+        print("   กรุณาไปที่ https://myaccount.google.com/apppasswords")
+        print("   แล้วใส่รหัสในตัวแปร GMAIL_APP_PASSWORD")
         return None, None
 
     try:
@@ -56,6 +63,7 @@ def download_excel_from_gmail():
         print(f"❌ Login ไม่ได้: {e}")
         return None, None
 
+    # ค้นหา email จาก callcenter ย้อนหลัง 2 วัน
     date_since = (datetime.now() - timedelta(days=2)).strftime("%d-%b-%Y")
     _, msg_ids = mail.search(None, f'FROM "{CALLCENTER_FROM}" SINCE "{date_since}"')
 
@@ -67,7 +75,21 @@ def download_excel_from_gmail():
     all_ids = msg_ids[0].split()
     print(f"   พบ {len(all_ids)} email(s) จาก callcenter")
 
-    for msg_id in reversed(all_ids):
+    # Sort by actual email Date header (most recent first)
+    dated_ids = []
+    for msg_id in all_ids:
+        try:
+            _, hdr_data = mail.fetch(msg_id, "(BODY.PEEK[HEADER.FIELDS (DATE)])")
+            hdr = email.message_from_bytes(hdr_data[0][1])
+            date_tuple = email.utils.parsedate(hdr.get("Date", ""))
+            ts = calendar.timegm(date_tuple) if date_tuple else 0
+        except Exception:
+            ts = 0
+        dated_ids.append((msg_id, ts))
+    dated_ids.sort(key=lambda x: x[1], reverse=True)  # most recent first
+
+    # วนหา email ล่าสุดที่มี Excel แนบ
+    for msg_id, _ts in dated_ids:
         _, msg_data = mail.fetch(msg_id, "(RFC822)")
         msg = email.message_from_bytes(msg_data[0][1])
 
@@ -76,10 +98,13 @@ def download_excel_from_gmail():
                 continue
             if not part.get("Content-Disposition"):
                 continue
+
             raw_fn = part.get_filename()
             if not raw_fn:
                 continue
+
             filename = decode_filename(raw_fn)
+
             if EXCEL_PREFIX in filename and filename.endswith(".xlsx"):
                 filepath = os.path.join(COWORK_DIR, filename)
                 with open(filepath, "wb") as f:
@@ -94,8 +119,11 @@ def download_excel_from_gmail():
 
 
 def parse_date_from_filename(filename):
-    """แปลงวันที่จากชื่อไฟล์ → YYYY-MM-DD"""
+    """แปลงวันที่จากชื่อไฟล์ → YYYY-MM-DD
+    ตัด prefix WMCDailyManagementType16 ออกก่อน เพื่อไม่ให้ตัวเลข 16 ไปรบกวน
+    """
     fname = re.sub(r"\.\w+$", "", os.path.basename(filename))
+    # ตัด prefix ที่รู้จัก
     fname = re.sub(r"WMCDailyManagementType\d+", "", fname)
     patterns = [
         r"(\d{1,2})[\s\-_()/]+(\d{1,2})[\s\-_()/]+(\d{2,4})",
@@ -105,18 +133,19 @@ def parse_date_from_filename(filename):
         m = re.search(pat, fname)
         if m:
             a, b, c = int(m.group(1)), int(m.group(2)), int(m.group(3))
-            if a > 1000:
+            if a > 1000:  # YYYY-MM-DD
                 y, mo, d = a, b, c
-            else:
+            else:         # DD-MM-YY(YY)
                 d, mo, y = a, b, c
                 if y < 100:
-                    y = y + 1957
+                    y = y + 1957  # Thai short BE → CE
             return f"{y:04d}-{mo:02d}-{d:02d}"
     return datetime.now().strftime("%Y-%m-%d")
 
 
 def download_html_from_github(date_str):
-    """ดาวน์โหลด HTML dashboard ปัจจุบันจาก GitHub API"""
+    """ดาวน์โหลด HTML dashboard ปัจจุบันจาก GitHub API
+    ใช้เมื่อรันจาก /tmp (scheduled task) และไม่มีไฟล์ local"""
     months_en = ["", "January", "February", "March", "April", "May",
                  "June", "July", "August", "September", "October", "November", "December"]
     try:
@@ -127,7 +156,7 @@ def download_html_from_github(date_str):
 
     local_path = os.path.join(COWORK_DIR, html_name)
     if os.path.exists(local_path):
-        return True
+        return True  # มีอยู่แล้ว ไม่ต้องโหลดซ้ำ
 
     api_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{html_name}"
     headers = {
@@ -142,22 +171,23 @@ def download_html_from_github(date_str):
         html_bytes = base64.b64decode(data["content"])
         with open(local_path, "wb") as f:
             f.write(html_bytes)
-        print(f"✅ ดาวน์โหลด {html_name} จาก GitHub ({len(html_bytes)//1024} KB)")
+        print(f"✅ ดาวน์โหลด {html_name} จาก GitHub สำเร็จ ({len(html_bytes)//1024} KB)")
         return True
     except Exception as e:
-        print(f"⚠️  ดาวน์โหลด HTML ไม่ได้: {e}")
+        print(f"⚠️  ไม่สามารถดาวน์โหลด HTML จาก GitHub: {e}")
         return False
 
 
 def find_latest_local_excel():
-    """fallback: หา Excel ล่าสุดใน working dir"""
+    """fallback: หา Excel ล่าสุดใน Cowork folder"""
     files = [
         f for f in os.listdir(COWORK_DIR)
         if f.startswith(EXCEL_PREFIX) and f.endswith(".xlsx")
     ]
     if not files:
         return None, None
-    files.sort(key=lambda f: os.path.getmtime(os.path.join(COWORK_DIR, f)), reverse=True)
+    files.sort(key=lambda f: os.path.getmtime(os.path.join(COWORK_DIR, f)),
+               reverse=True)
     filename = files[0]
     return os.path.join(COWORK_DIR, filename), filename
 
@@ -168,6 +198,7 @@ def run_pipeline(filename, date_str):
     if not os.path.exists(proc_script):
         print(f"❌ ไม่พบ {proc_script}")
         return 1
+
     result = subprocess.run(
         ["python3", proc_script, filename, date_str],
         cwd=COWORK_DIR
@@ -183,18 +214,19 @@ if __name__ == "__main__":
     print("=" * 50)
     print()
 
+    # รับ argument --date ถ้ามี
     manual_date = None
     if "--date" in sys.argv:
         idx = sys.argv.index("--date")
         if idx + 1 < len(sys.argv):
             manual_date = sys.argv[idx + 1]
 
-    # 1. ดึงจาก Gmail
+    # 1. ลองดึงจาก Gmail ก่อน
     filepath, filename = download_excel_from_gmail()
 
-    # 2. fallback: ใช้ไฟล์ใน working dir
+    # 2. fallback: ใช้ไฟล์ใน Cowork folder
     if not filepath:
-        print("⚠️  fallback → ใช้ไฟล์ล่าสุดใน working dir แทน")
+        print("⚠️  fallback → ใช้ไฟล์ล่าสุดใน Cowork folder แทน")
         filepath, filename = find_latest_local_excel()
 
     if not filepath:
@@ -207,6 +239,7 @@ if __name__ == "__main__":
     print()
 
     # 3.5 ดาวน์โหลด HTML dashboard จาก GitHub ถ้ายังไม่มี local
+    #     (จำเป็นเมื่อรันจาก /tmp ใน scheduled task — ไม่มี Cowork folder)
     download_html_from_github(date_str)
 
     # 4. รัน pipeline
