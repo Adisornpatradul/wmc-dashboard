@@ -75,47 +75,39 @@ def download_excel_from_gmail():
     all_ids = msg_ids[0].split()
     print(f"   พบ {len(all_ids)} email(s) จาก callcenter")
 
-    # Sort by actual email Date header (most recent first)
-    dated_ids = []
+    # ดึง Excel ทุกฉบับจากทุก email แล้ว sort by วันที่ในชื่อไฟล์ (แม่นที่สุด)
+    candidates = []  # list of (filepath, filename, date_str)
     for msg_id in all_ids:
-        try:
-            _, hdr_data = mail.fetch(msg_id, "(BODY.PEEK[HEADER.FIELDS (DATE)])")
-            hdr = email.message_from_bytes(hdr_data[0][1])
-            date_tuple = email.utils.parsedate(hdr.get("Date", ""))
-            ts = calendar.timegm(date_tuple) if date_tuple else 0
-        except Exception:
-            ts = 0
-        dated_ids.append((msg_id, ts))
-    dated_ids.sort(key=lambda x: x[1], reverse=True)  # most recent first
-
-    # วนหา email ล่าสุดที่มี Excel แนบ
-    for msg_id, _ts in dated_ids:
         _, msg_data = mail.fetch(msg_id, "(RFC822)")
         msg = email.message_from_bytes(msg_data[0][1])
-
         for part in msg.walk():
             if part.get_content_maintype() == "multipart":
                 continue
             if not part.get("Content-Disposition"):
                 continue
-
             raw_fn = part.get_filename()
             if not raw_fn:
                 continue
-
             filename = decode_filename(raw_fn)
-
             if EXCEL_PREFIX in filename and filename.endswith(".xlsx"):
                 filepath = os.path.join(COWORK_DIR, filename)
                 with open(filepath, "wb") as f:
                     f.write(part.get_payload(decode=True))
-                print(f"✅ ดาวน์โหลดแล้ว: {filename}")
-                mail.close(); mail.logout()
-                return filepath, filename
+                date_str = parse_date_from_filename(filename)
+                candidates.append((filepath, filename, date_str))
+                print(f"   พบ Excel: {filename} → {date_str}")
 
     mail.close(); mail.logout()
-    print("❌ ไม่พบ Excel attachment ใน email")
-    return None, None
+
+    if not candidates:
+        print("❌ ไม่พบ Excel attachment ใน email")
+        return None, None
+
+    # เลือก Excel ที่มีวันที่ล่าสุดในชื่อไฟล์
+    candidates.sort(key=lambda x: x[2], reverse=True)
+    filepath, filename, date_str = candidates[0]
+    print(f"✅ เลือก: {filename} (ล่าสุด: {date_str})")
+    return filepath, filename
 
 
 def parse_date_from_filename(filename):
