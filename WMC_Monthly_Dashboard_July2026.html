@@ -223,6 +223,7 @@ footer{
     <div class="date-big">กรกฎาคม 2569</div>
     <div class="date-sub">ข้อมูล 31 วัน (1–31 ก.ค. 2569) &nbsp;|&nbsp; คลิกวันที่เพื่อดูรายละเอียด</div>
     <div class="mtd-row" id="mtdRow"></div>
+    <div class="month-nav" id="monthNav"></div>
   </div>
 </header>
 
@@ -697,6 +698,47 @@ function resetFilter(){
 
 // ─── Init ───
 buildCalendar();
+</script>
+
+<script>
+(function(){
+  var THN=["","January","February","March","April","May","June","July","August","September","October","November","December"];
+  var THT=["","มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  var path=location.pathname.split('/').pop();
+  var m=path.match(/WMC_Monthly_Dashboard_([A-Za-z]+)(\d{4})\.html/);
+  if(!m) return;
+  var monName=m[1], year=parseInt(m[2],10);
+  var monIdx=THN.indexOf(monName);
+  if(monIdx<1) return;
+  function build(idx,yr){
+    if(idx<1){idx=12;yr-=1;}
+    if(idx>12){idx=1;yr+=1;}
+    return {file:'WMC_Monthly_Dashboard_'+THN[idx]+yr+'.html', label:THT[idx]+' '+(yr+543)};
+  }
+  var prev=build(monIdx-1,year);
+  var next=build(monIdx+1,year);
+  var nav=document.getElementById('monthNav');
+  if(!nav) return;
+  nav.style.cssText='margin-top:8px;display:flex;gap:10px;justify-content:flex-end;font-size:.72rem;';
+  function makeLink(info,dir){
+    var a=document.createElement('a');
+    a.textContent=(dir==='prev'?'\u2190 ':'')+info.label+(dir==='next'?' \u2192':'');
+    a.style.cssText='color:#fff;opacity:.4;text-decoration:none;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 12px;transition:opacity .15s,background .15s;pointer-events:none;';
+    a.href='#';
+    fetch(info.file,{method:'HEAD',cache:'no-store'}).then(function(r){
+      if(r.ok){
+        a.href=info.file;
+        a.style.opacity='1';
+        a.style.pointerEvents='auto';
+        a.onmouseenter=function(){a.style.background='rgba(255,255,255,.15)';};
+        a.onmouseleave=function(){a.style.background='transparent';};
+      }
+    }).catch(function(){});
+    return a;
+  }
+  nav.appendChild(makeLink(prev,'prev'));
+  nav.appendChild(makeLink(next,'next'));
+})();
 </script>
 </body>
 </html>
