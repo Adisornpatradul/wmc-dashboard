@@ -136,13 +136,44 @@ def extract_data_from_workbook(wb, date_str):
     opd_total     = bill_amt
 
     # ══════════════════════════════════════════════════════════════════════
-    # 2. IPD REVENUE
+    # 2 & 2b. IPD REVENUE + WARD REVENUE (Location/Amount table)
+    #   Layout Aug-2026+: the ward Location/Amount table appears directly
+    #   after the Visit Summary, WITHOUT an "IPD Revenue" text header above
+    #   it. Older layouts (June/July-2026) still have that label. We search
+    #   for the Location+Amount header row directly so it works either way,
+    #   and derive ipdRev as the sum of all ward rows (matches the sheet's
+    #   own unlabeled total row, which we skip since it has no location text).
     # ══════════════════════════════════════════════════════════════════════
     ipd_rev = 0.0
-    ipd_sec = find_row("IPD Revenue", start=10, end=20)
-    if ipd_sec >= 0:
-        # Strategy A (June-16 style): row immediately after "Date / Amount" sub-header
-        # contains the daily IPD total as a plain number.
+    ward_rev_map = {}   # {ward_name_raw: revenue_float}
+
+    ipd_sec = find_row("IPD Revenue", start=8, end=25)
+    search_start = (ipd_sec + 1) if ipd_sec >= 0 else (dat + 1)
+    loc_hdr_row = -1
+    for ri in range(search_start, min(search_start + 25, 40, n)):
+        if find_col(ri, "Location") >= 0 and find_col(ri, "Amount") >= 0:
+            loc_hdr_row = ri
+            break
+
+    if loc_hdr_row >= 0:
+        c_loc = find_col(loc_hdr_row, "Location")
+        c_rev = find_col(loc_hdr_row, "Amount")
+        if c_loc >= 0 and c_rev >= 0:
+            for ri in range(loc_hdr_row + 1, min(loc_hdr_row + 12, n)):
+                loc_name = cell_str(ri, c_loc)
+                if not loc_name:
+                    continue
+                if "total" in loc_name.lower():
+                    break
+                rev_val = g(rows[ri][c_rev]) if len(rows[ri]) > c_rev else 0.0
+                if rev_val > 0:
+                    ward_rev_map[loc_name.strip()] = rev_val
+
+    if ward_rev_map:
+        ipd_rev = sum(ward_rev_map.values())
+
+    # Fallback for old layouts where IPD Revenue was a single number (no ward table)
+    if not ipd_rev and ipd_sec >= 0:
         date_hdr = find_row("Date", start=ipd_sec + 1, end=ipd_sec + 4)
         if date_hdr >= 0:
             r = rows[date_hdr + 1] if date_hdr + 1 < n else []
@@ -151,9 +182,6 @@ def extract_data_from_workbook(wb, date_str):
                 if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 50000:
                     ipd_rev = float(v)
                     break
-
-        # Strategy B (June-17 style): total row has NO datetime and NO string labels
-        # in first 8 cols — it's an empty-label row with just one large number.
         if not ipd_rev:
             for ri in range(ipd_sec + 1, min(ipd_sec + 25, n)):
                 r = rows[ri]
@@ -172,31 +200,25 @@ def extract_data_from_workbook(wb, date_str):
                     break
 
     # ══════════════════════════════════════════════════════════════════════
-    # 2b. WARD REVENUE — from IPD Location/Amount sub-section (June-17+)
-    #     Header row has both "Location" and "Amount" columns;
-    #     data rows have ward name in loc-col and daily revenue in amt-col.
+    # 2c. OPERATING ROOM REVENUE (OT) — new section added Aug-2026
+    #     Table: "Order Date | Order From Location | Total Net Amount"
     # ══════════════════════════════════════════════════════════════════════
-    ward_rev_map = {}   # {ward_name_raw: revenue_float}
-    if ipd_sec >= 0:
-        # Find the Location/Amount sub-header within IPD section
-        loc_hdr_row = -1
-        for ri in range(ipd_sec + 1, min(ipd_sec + 22, n)):
-            if find_col(ri, "Location") >= 0 and find_col(ri, "Amount") >= 0:
-                loc_hdr_row = ri
-                break
-        if loc_hdr_row >= 0:
-            c_loc = find_col(loc_hdr_row, "Location")
-            c_rev = find_col(loc_hdr_row, "Amount")
-            if c_loc >= 0 and c_rev >= 0:
-                for ri in range(loc_hdr_row + 1, min(loc_hdr_row + 12, n)):
-                    loc_name = cell_str(ri, c_loc)
-                    if not loc_name:
-                        continue
-                    if "total" in loc_name.lower():
-                        break
-                    rev_val = g(rows[ri][c_rev]) if len(rows[ri]) > c_rev else 0.0
-                    if rev_val > 0:
-                        ward_rev_map[loc_name.strip()] = rev_val
+    ot_rev = 0.0
+    ot_hdr_row = find_row("Order From Location", start=10, end=45)
+    if ot_hdr_row >= 0:
+        c_amt = find_col(ot_hdr_row, "Total Net Amount")
+        if c_amt < 0:
+            c_amt = find_col(ot_hdr_row, "Net Amount")
+        c_loc = find_col(ot_hdr_row, "Order From Location")
+        if c_amt >= 0:
+            for ri in range(ot_hdr_row + 1, min(ot_hdr_row + 10, n)):
+                loc = cell_str(ri, c_loc) if c_loc >= 0 else ""
+                if not loc:
+                    break
+                if "total" in loc.lower():
+                    ot_rev = g(rows[ri][c_amt]) if len(rows[ri]) > c_amt else ot_rev
+                    break
+                ot_rev += g(rows[ri][c_amt]) if len(rows[ri]) > c_amt else 0.0
 
     # ══════════════════════════════════════════════════════════════════════
     # 3. OPD REVENUE BY NATIONALITY
@@ -521,6 +543,7 @@ def extract_data_from_workbook(wb, date_str):
         "opdInter":      opd_inter,
         "chkTotal":      chk_total,
         "ipdRev":        ipd_rev,
+        "otRev":         ot_rev,
         "ipdInterBill":  ipd_inter_bill,
         "ipdThaiBill":   ipd_thai_bill,
         "opdInterBill":  opd_inter_bill,
@@ -857,6 +880,7 @@ def main():
     wb.close()
     print(f"   OPD Revenue: {day_data['opdTotal']:,.0f} บาท")
     print(f"   IPD Revenue: {day_data['ipdRev']:,.0f} บาท")
+    print(f"   OT Revenue:  {day_data['otRev']:,.0f} บาท")
     print(f"   OPD Visit:   {day_data['opdVisit']:,} ราย")
     print(f"   IPD Admit:   {day_data['ipdAdmit']:,} ราย")
     print(f"   BU rows:     {len(day_data['bu'])}")
