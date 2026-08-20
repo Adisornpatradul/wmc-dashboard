@@ -455,6 +455,11 @@ function showDay(dk){
       <div class="kpi-value blue">${fmt(d.ipdRev)}</div>
       <div class="kpi-sub">฿${fmt2(Math.round(d.ipdRev))}</div>
     </div>
+    <div class="kpi red">
+      <div class="kpi-label">รายรับห้องผ่าตัด (OT)</div>
+      <div class="kpi-value red">${fmt(d.otRev||0)}</div>
+      <div class="kpi-sub">฿${fmt2(Math.round(d.otRev||0))}</div>
+    </div>
     <div class="kpi gold">
       <div class="kpi-label">Cashier Billed วันนี้</div>
       <div class="kpi-value gold">${fmt(d.totalBilled)}</div>
