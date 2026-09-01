@@ -20,6 +20,8 @@ import subprocess
 import json
 import base64
 import urllib.request
+import urllib.error
+import time
 from datetime import datetime, timedelta
 
 # =================== CONFIG ===================
@@ -137,18 +139,26 @@ def parse_date_from_filename(filename):
 
 def download_html_from_github(date_str):
     """ดาวน์โหลด HTML dashboard ปัจจุบันจาก GitHub API
-    ใช้เมื่อรันจาก /tmp (scheduled task) และไม่มีไฟล์ local"""
+    ใช้เมื่อรันจาก /tmp (scheduled task) และไม่มีไฟล์ local
+
+    Return:
+      "exists"     - มีไฟล์ local อยู่แล้ว
+      "downloaded" - ดาวน์โหลดสำเร็จ
+      "new_month"  - ไม่พบไฟล์บน GitHub จริง ๆ (404) ปลอดภัยที่จะสร้างใหม่
+      "error"      - ดาวน์โหลดล้มเหลวหลังพยายามหลายครั้ง (เช่น network/rate-limit)
+                     ห้าม fallback ไปสร้างไฟล์ใหม่ทับของเดิม เพราะจะทำข้อมูลหาย
+    """
     months_en = ["", "January", "February", "March", "April", "May",
                  "June", "July", "August", "September", "October", "November", "December"]
     try:
         dt = datetime.strptime(date_str, "%Y-%m-%d")
         html_name = f"WMC_Monthly_Dashboard_{months_en[dt.month]}{dt.year}.html"
     except Exception:
-        return False
+        return "error"
 
     local_path = os.path.join(COWORK_DIR, html_name)
     if os.path.exists(local_path):
-        return True  # มีอยู่แล้ว ไม่ต้องโหลดซ้ำ
+        return "exists"  # มีอยู่แล้ว ไม่ต้องโหลดซ้ำ
 
     api_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{html_name}"
     headers = {
@@ -156,18 +166,31 @@ def download_html_from_github(date_str):
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-    try:
-        req = urllib.request.Request(api_url, headers=headers)
-        with urllib.request.urlopen(req) as r:
-            data = json.loads(r.read())
-        html_bytes = base64.b64decode(data["content"])
-        with open(local_path, "wb") as f:
-            f.write(html_bytes)
-        print(f"✅ ดาวน์โหลด {html_name} จาก GitHub สำเร็จ ({len(html_bytes)//1024} KB)")
-        return True
-    except Exception as e:
-        print(f"⚠️  ไม่สามารถดาวน์โหลด HTML จาก GitHub: {e}")
-        return False
+
+    max_attempts = 3
+    for attempt in range(1, max_attempts + 1):
+        try:
+            req = urllib.request.Request(api_url, headers=headers)
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.loads(r.read())
+            html_bytes = base64.b64decode(data["content"])
+            with open(local_path, "wb") as f:
+                f.write(html_bytes)
+            print(f"✅ ดาวน์โหลด {html_name} จาก GitHub สำเร็จ ({len(html_bytes)//1024} KB)")
+            return "downloaded"
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                print(f"ℹ️  ไม่พบ {html_name} บน GitHub (404) — เป็นเดือนใหม่ สร้างไฟล์ใหม่ได้อย่างปลอดภัย")
+                return "new_month"
+            print(f"⚠️  HTTP error {e.code} ตอนดาวน์โหลด {html_name} (ครั้งที่ {attempt}/{max_attempts}): {e}")
+        except Exception as e:
+            print(f"⚠️  ดาวน์โหลด {html_name} ล้มเหลว (ครั้งที่ {attempt}/{max_attempts}): {e}")
+        if attempt < max_attempts:
+            time.sleep(3)
+
+    print(f"❌ ไม่สามารถดาวน์โหลด {html_name} จาก GitHub ได้หลังพยายาม {max_attempts} ครั้ง")
+    print("   หยุดก่อนดำเนินการต่อ เพื่อป้องกันไม่ให้ระบบสร้างไฟล์ใหม่ทับข้อมูลเดือนนี้ที่มีอยู่แล้วโดยไม่ตั้งใจ")
+    return "error"
 
 
 def find_latest_local_excel():
@@ -232,7 +255,11 @@ if __name__ == "__main__":
 
     # 3.5 ดาวน์โหลด HTML dashboard จาก GitHub ถ้ายังไม่มี local
     #     (จำเป็นเมื่อรันจาก /tmp ใน scheduled task — ไม่มี Cowork folder)
-    download_html_from_github(date_str)
+    html_status = download_html_from_github(date_str)
+    if html_status == "error":
+        print("❌ หยุด pipeline: ไม่สามารถยืนยันสถานะ Dashboard HTML บน GitHub ได้")
+        print("   ไม่ดำเนินการต่อ เพื่อป้องกันข้อมูลเดือนนี้เสียหาย — กรุณารันใหม่อีกครั้ง")
+        sys.exit(1)
 
     # 4. รัน pipeline
     rc = run_pipeline(filename, date_str)
