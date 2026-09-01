@@ -103,23 +103,52 @@ h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.3px; }
   var y    = now.getFullYear();
   var mo   = now.getMonth() + 1;
   var d    = now.getDate();
-  var be   = y + 543;
-  var v    = '' + y + ('0'+mo).slice(-2) + ('0'+d).slice(-2);
-  var fname = 'WMC_Monthly_Dashboard_' + EN[mo] + y + '.html';
-  var url   = fname + '?v=' + v;
 
-  // Update badge
-  document.getElementById('badge').textContent =
-    TH[mo] + ' ' + be + '  ·  วันที่ ' + d;
+  function fname(yy, mm) { return 'WMC_Monthly_Dashboard_' + EN[mm] + yy + '.html'; }
+  function ver(yy, mm)   { return '' + yy + ('0'+mm).slice(-2) + ('0'+d).slice(-2); }
+  function urlFor(yy, mm) { return fname(yy, mm) + '?v=' + ver(yy, mm); }
 
-  // Update button
-  document.getElementById('btn').href = url;
-  document.getElementById('btn-text').textContent =
-    '📊  เปิด Dashboard ' + TH[mo] + ' ' + be;
+  // เดือนก่อนหน้า — ใช้เป็น fallback ถ้าเดือนนี้ยังไม่มี Dashboard
+  // (ต้นเดือน ข้อมูลวันแรกจาก callcenter ยังมาไม่ถึง ไฟล์เดือนใหม่จึงยังไม่ถูกสร้าง)
+  var py = y, pmo = mo - 1;
+  if (pmo < 1) { pmo = 12; py = y - 1; }
 
-  document.getElementById('hint').textContent =
-    'ข้อมูล ณ วันที่ ' + ('0'+d).slice(-2) + '/' + ('0'+mo).slice(-2) + '/' + be +
-    '\nหากไม่เปิดอัตโนมัติ กดปุ่มด้านบน';
+  var curFile = fname(y, mo);
+  var curUrl  = urlFor(y, mo);
+  var prevUrl = urlFor(py, pmo);
+
+  var be  = y + 543;
+  var pbe = py + 543;
+
+  function setUI(monthLabel, btnLabel, hintExtra) {
+    document.getElementById('badge').textContent = monthLabel + '  ·  วันที่ ' + d;
+    document.getElementById('btn-text').textContent = '📊  เปิด Dashboard ' + btnLabel;
+    document.getElementById('hint').textContent =
+      'ข้อมูล ณ วันที่ ' + ('0'+d).slice(-2) + '/' + ('0'+mo).slice(-2) + '/' + be +
+      (hintExtra ? '\n' + hintExtra : '') +
+      '\nหากไม่เปิดอัตโนมัติ กดปุ่มด้านบน';
+  }
+
+  // ตั้งค่าเริ่มต้นเป็นเดือนปัจจุบันไปก่อน (เผื่อเช็คไฟล์ไม่ทัน/ล้มเหลว)
+  var finalUrl = curUrl;
+  document.getElementById('btn').href = curUrl;
+  setUI(TH[mo] + ' ' + be, TH[mo] + ' ' + be, null);
+
+  // เช็คว่าไฟล์ Dashboard เดือนนี้มีอยู่จริงไหมก่อน redirect
+  // ถ้ายังไม่มี (ต้นเดือน) → ใช้ Dashboard เดือนก่อนหน้าแทน (ข้อมูลล่าสุดที่มี)
+  fetch(curFile, { method: 'HEAD', cache: 'no-store' })
+    .then(function (res) {
+      if (!res.ok) throw new Error('not found');
+    })
+    .catch(function () {
+      finalUrl = prevUrl;
+      document.getElementById('btn').href = prevUrl;
+      setUI(
+        TH[mo] + ' ' + be,
+        TH[pmo] + ' ' + pbe + ' (ล่าสุด)',
+        '⚠️ ยังไม่มีข้อมูลเดือน' + TH[mo] + ' — แสดงข้อมูลเดือน' + TH[pmo] + ' แทน'
+      );
+    });
 
   // Animate progress ring & auto-redirect in 2s
   var ring = document.getElementById('ring');
@@ -127,14 +156,14 @@ h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.3px; }
     ring.style.strokeDashoffset = '0';
   }, 50);
   var t = setTimeout(function() {
-    window.location.replace(url);
+    window.location.replace(finalUrl);
   }, 2100);
 
   // Manual tap cancels countdown and goes immediately
   document.getElementById('btn').addEventListener('click', function(e) {
     e.preventDefault();
     clearTimeout(t);
-    window.location.href = url;
+    window.location.href = finalUrl;
   });
 })();
 </script>
