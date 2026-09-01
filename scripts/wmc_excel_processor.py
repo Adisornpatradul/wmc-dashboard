@@ -663,6 +663,11 @@ def update_dashboard_html(date_str, new_data):
 
     # ถ้าไฟล์เดือนนี้ยังไม่มี → สร้างใหม่จากเดือนก่อนหน้าอัตโนมัติ
     if not os.path.exists(html_path):
+        from datetime import datetime as _dt2
+        _day = _dt2.strptime(date_str, "%Y-%m-%d").day
+        if _day != 1:
+            print(f"   ⚠️  คำเตือน: ไม่พบ {os.path.basename(html_path)} แต่วันที่ {date_str} ไม่ใช่วันที่ 1 ของเดือน")
+            print(f"   ⚠️  นี่อาจไม่ใช่เดือนใหม่จริง — อาจเกิดจากดาวน์โหลดไฟล์เดิมล้มเหลว การสร้างไฟล์ใหม่จะทำให้ข้อมูลวันก่อนหน้าหายไป")
         print(f"   ℹ️  ไม่พบ {os.path.basename(html_path)} — สร้างใหม่สำหรับเดือนนี้...")
         _create_new_month_html(date_str, html_path)
 
