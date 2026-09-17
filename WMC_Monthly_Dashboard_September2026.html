@@ -20,4 +20,344 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--text);}
-STOP_THIS_IS_A_SAFETY_CHECK_DO_NOT_SEND
+
+/* ─── HEADER ─── */
+header{
+  background:linear-gradient(135deg,#0d4f2e 0%,#1a7a4a 45%,#1565c0 100%);
+  color:#fff;padding:18px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{display:flex;align-items:center;gap:14px;}
+.logo-circle{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:900;color:var(--gold2);
+  border:2px solid var(--gold2);
+}
+.logo-text h1{font-size:1.25rem;font-weight:700;letter-spacing:.5px;}
+.logo-text p{font-size:.78rem;opacity:.8;margin-top:2px;}
+.header-right{text-align:right;}
+.header-right .date-big{font-size:1.4rem;font-weight:700;color:var(--gold2);}
+.header-right .date-sub{font-size:.75rem;opacity:.75;margin-top:2px;}
+.mtd-row{display:flex;gap:24px;margin-top:8px;justify-content:flex-end;}
+.mtd-item{text-align:center;}
+.mtd-val{font-size:1.1rem;font-weight:800;color:var(--gold2);}
+.mtd-lbl{font-size:.62rem;opacity:.75;text-transform:uppercase;letter-spacing:.06em;}
+
+/* ─── LAYOUT ─── */
+.container{max-width:1440px;margin:0 auto;padding:24px 24px 40px;}
+.section-title{
+  font-size:.7rem;font-weight:700;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--sub);
+  margin:28px 0 12px;padding-left:2px;
+}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.kpi{
+  background:var(--card);border-radius:14px;padding:18px 20px;
+  box-shadow:var(--shadow);border-left:4px solid var(--green);
+  display:flex;flex-direction:column;gap:6px;transition:transform .15s;
+}
+.kpi:hover{transform:translateY(-2px);}
+.kpi.blue{border-color:var(--blue2);}
+.kpi.gold{border-color:var(--gold);}
+.kpi.red{border-color:var(--red2);}
+.kpi.teal{border-color:#0891b2;}
+.kpi-label{font-size:.72rem;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
+.kpi-value{font-size:1.9rem;font-weight:800;line-height:1;color:var(--text);}
+.kpi-value.green{color:var(--green2);}
+.kpi-value.blue{color:var(--blue2);}
+.kpi-value.gold{color:var(--gold);}
+.kpi-value.red{color:var(--red2);}
+.kpi-value.teal{color:#0891b2;}
+.kpi-sub{font-size:.75rem;color:var(--sub);}
+.card{
+  background:var(--card);border-radius:14px;
+  padding:22px 24px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.card-title{
+  font-size:.85rem;font-weight:700;color:var(--text);
+  margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.card-title .dot{width:10px;height:10px;border-radius:50%;background:var(--green2);flex-shrink:0;}
+.card-title .dot.blue{background:var(--blue2);}
+.card-title .dot.gold{background:var(--gold);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+.chart-wrap{position:relative;width:100%;}
+.tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
+.tbl thead th{
+  background:linear-gradient(135deg,#0d4f2e,#1565c0);
+  color:#fff;padding:9px 12px;text-align:right;
+  font-weight:600;font-size:.72rem;letter-spacing:.4px;
+}
+.tbl thead th:first-child{text-align:left;border-radius:8px 0 0 0;}
+.tbl thead th:last-child{border-radius:0 8px 0 0;}
+.tbl tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+.tbl tbody tr:hover{background:#f8fafc;}
+.tbl td{padding:8px 12px;text-align:right;color:var(--text);}
+.tbl td:first-child{text-align:left;font-weight:500;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:700;}
+.badge.pos{background:var(--green3);color:var(--green);}
+.badge.neg{background:var(--red3);color:var(--red);}
+.badge.neu{background:#f1f5f9;color:var(--sub);}
+.bar-wrap{display:flex;align-items:center;gap:6px;}
+.bar-bg{flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;background:var(--blue2);}
+.bar-fill.green{background:var(--green2);}
+.bar-fill.gold{background:var(--gold2);}
+.bar-fill.red{background:var(--red2);}
+.ward-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+.ward-box{
+  background:linear-gradient(135deg,var(--blue3),#fff);
+  border:1px solid #bfdbfe;border-radius:12px;padding:16px;text-align:center;
+}
+.ward-box .num{font-size:2.2rem;font-weight:800;color:var(--blue);}
+.ward-box .lbl{font-size:.7rem;color:var(--sub);margin-top:4px;font-weight:600;}
+.ward-box .ward-rev{font-size:.78rem;color:var(--green);font-weight:700;margin-top:4px;}
+.ward-box .sub{font-size:.68rem;color:var(--green2);margin-top:2px;}
+.donut-legend{list-style:none;padding:0;margin-top:12px;}
+.donut-legend li{
+  display:flex;align-items:center;gap:8px;
+  font-size:.78rem;padding:4px 0;border-bottom:1px solid var(--border);
+}
+.donut-legend .swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.filter-bar{
+  display:flex;gap:10px;align-items:center;
+  background:var(--card);border-radius:10px;padding:12px 16px;
+  box-shadow:var(--shadow);margin-bottom:16px;flex-wrap:wrap;
+}
+.filter-bar label{font-size:.75rem;font-weight:600;color:var(--sub);}
+.filter-bar select,.filter-bar input{
+  padding:5px 10px;border:1px solid var(--border);border-radius:6px;
+  font-size:.78rem;color:var(--text);background:#f8fafc;cursor:pointer;
+}
+.btn-reset{
+  margin-left:auto;padding:5px 14px;background:var(--green2);
+  color:#fff;border:none;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;
+}
+.btn-reset:hover{background:var(--green);}
+footer{
+  text-align:center;font-size:.72rem;color:var(--sub);
+  padding:16px;border-top:1px solid var(--border);margin-top:24px;
+}
+
+/* ─── CALENDAR ─── */
+.cal-card{
+  background:var(--card);border-radius:14px;
+  padding:22px 24px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.cal-hdr h2{font-size:1rem;font-weight:700;color:var(--text);}
+.cal-hdr p{font-size:.75rem;color:var(--sub);}
+#calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
+.cdow{
+  text-align:center;padding:6px 0;
+  font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;
+}
+.cdow.wknd{color:var(--blue2);}
+.cday{
+  border-radius:10px;padding:9px;min-height:86px;
+  border:1.5px solid transparent;position:relative;transition:all .15s;
+}
+.cday.empty{background:transparent;border:none;}
+.cday.nodata{background:#fafbfc;border-color:var(--border);}
+.cday.hasdata{
+  background:var(--green3);border-color:#86efac;cursor:pointer;
+}
+.cday.hasdata:hover{
+  border-color:var(--green);box-shadow:0 4px 14px rgba(26,122,74,.2);
+  transform:translateY(-2px);
+}
+.cday.active{
+  border-color:var(--green)!important;
+  box-shadow:0 0 0 3px rgba(26,122,74,.25),0 4px 14px rgba(26,122,74,.2)!important;
+  transform:translateY(-1px);
+}
+.cday.wkndday.hasdata{background:#dbeafe;border-color:#93c5fd;}
+.cday.wkndday.hasdata:hover{border-color:var(--blue2);box-shadow:0 4px 14px rgba(21,101,192,.2);}
+.cday.wkndday.nodata{background:#f8fafc;}
+.dnum{font-size:.95rem;font-weight:700;color:var(--text);}
+.cday.nodata .dnum{color:#cbd5e1;}
+.cday.wkndday .dnum{color:var(--blue2);}
+.dbadge{
+  display:inline-block;font-size:.56rem;font-weight:700;
+  padding:1px 5px;border-radius:8px;margin-left:3px;vertical-align:middle;
+}
+.dbadge.sat{background:#dbeafe;color:var(--blue);}
+.dbadge.sun{background:var(--red3);color:var(--red);}
+.dstats{margin-top:6px;}
+.dopd{font-size:.68rem;color:var(--blue);font-weight:600;}
+.dipd{font-size:.67rem;color:var(--green2);}
+.dbilled{font-size:.72rem;font-weight:700;color:var(--gold);margin-top:3px;}
+.dbar{position:absolute;bottom:5px;left:9px;right:9px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.dbarfill{height:100%;background:var(--green2);border-radius:2px;}
+
+/* ─── DETAIL PANEL ─── */
+#detail{animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* close button for detail */
+.detail-back{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border-radius:10px;padding:12px 18px;
+  box-shadow:var(--shadow);margin-bottom:4px;cursor:pointer;
+  font-size:.82rem;font-weight:600;color:var(--sub);
+  border:1.5px solid var(--border);transition:all .15s;
+  width:fit-content;
+}
+.detail-back:hover{border-color:var(--green);color:var(--green);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-circle">W</div>
+    <div class="logo-text">
+      <h1>World Medical Hospital</h1>
+      <p>WMC Monthly Management Dashboard — กันยายน 2569</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="date-big">กันยายน 2569</div>
+    <div class="date-sub">ข้อมูล 16 วัน (1–16 ก.ย. 2569) &nbsp;|&nbsp; คลิกวันที่เพื่อดูรายละเอียด</div>
+    <div class="mtd-row" id="mtdRow"></div>
+    <div class="month-nav" id="monthNav"></div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- CALENDAR -->
+  <div class="section-title">📅 ปฏิทินกันยายน 2569 — เลือกวันที่</div>
+  <div class="cal-card">
+    <div class="cal-hdr">
+      <h2>กันยายน 2569 (September 2026)</h2>
+      <p>🟢 มีข้อมูล — คลิกเพื่อดู Dashboard รายวัน</p>
+    </div>
+    <div id="calGrid"></div>
+  </div>
+
+  <!-- DETAIL (hidden until day clicked) -->
+  <div id="detail" style="display:none">
+
+    <div class="detail-back" onclick="closeDetail()">← กลับปฏิทิน</div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar no-print">
+      <label>กรอง BU:</label>
+      <select id="buFilter" onchange="filterTable()">
+        <option value="">-- ทุก BU --</option>
+      </select>
+      <label>แสดง:</label>
+      <select id="showFilter" onchange="filterTable()">
+        <option value="all">ทุก BU</option>
+        <option value="pos">Daily > เป้าวัน ✅</option>
+        <option value="neg">Daily < เป้าวัน ❌</option>
+      </select>
+      <button class="btn-reset" onclick="resetFilter()">รีเซ็ต</button>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="section-title" id="detailTitle">📊 สรุปผลประกอบการ</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- CHARTS ROW 1 -->
+    <div class="section-title">💰 รายได้ตามประเภทและสัญชาติ</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>รายได้ OPD แบ่งตามสัญชาติ</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="opdNatChart"></canvas></div>
+        <ul class="donut-legend" id="natLegend"></ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot blue"></span>รายได้ OPD vs IPD</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="revSplitChart"></canvas></div>
+        <ul class="donut-legend" id="revSplitLegend"></ul>
+      </div>
+    </div>
+
+    <!-- BU REVENUE CHART -->
+    <div class="section-title">🏥 รายได้ OPD รายหน่วยบริการ (Daily Revenue)</div>
+    <div class="card">
+      <div class="card-title"><span class="dot blue"></span>Daily Revenue vs เป้าวันนี้ แยกตาม BU</div>
+      <div class="chart-wrap" id="buChartWrap" style="min-height:420px"><canvas id="buChart"></canvas></div>
+    </div>
+
+    <!-- MTD PROGRESS -->
+    <div class="section-title">📈 MTD Revenue vs Monthly Forecast (สะสมเดือน)</div>
+    <div class="card">
+      <div class="card-title"><span class="dot gold"></span>ความคืบหน้าสะสมรายเดือน (%MTD / เป้ารายเดือน)</div>
+      <div class="chart-wrap" id="mtdChartWrap" style="min-height:420px"><canvas id="mtdChart"></canvas></div>
+    </div>
+
+    <!-- WARD CENSUS -->
+    <div class="section-title">🛏 Ward Census</div>
+    <div class="card">
+      <div class="card-title"><span class="dot blue"></span>จำนวนผู้ป่วยบนวอร์ด</div>
+      <div class="ward-grid" id="wardGrid"></div>
+    </div>
+
+    <!-- BU TABLE -->
+    <div class="section-title">📋 ตาราง BU Performance (OPD Location)</div>
+    <div class="card" style="overflow-x:auto">
+      <table class="tbl" id="buTable">
+        <thead>
+          <tr>
+            <th>Business Unit</th><th>Visit</th>
+            <th>Daily Rev (฿)</th><th>เป้าวัน (฿)</th>
+            <th>Daily Gain/Lost</th><th>% Diff</th>
+            <th>MTD Rev (฿)</th><th>Monthly Target (฿)</th><th>MTD %</th>
+          </tr>
+        </thead>
+        <tbody id="buTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- DISCHARGE + ADMISSION -->
+    <div class="section-title">🔄 IPD Discharge & New Admission</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><span class="dot gold"></span>Discharge วันนี้</div>
+        <div class="kpi-grid" style="gap:10px">
+          <div class="kpi gold" style="padding:14px">
+            <div class="kpi-label">Discharge รวม</div>
+            <div class="kpi-value gold" id="kDisTotal">-</div>
+            <div class="kpi-sub" id="kDisSub">-</div>
+          </div>
+          <div class="kpi" style="padding:14px">
+            <div class="kpi-label">ยอดเรียกเก็บ</div>
+            <div class="kpi-value green" id="kDisBill">-</div>
+            <div class="kpi-sub" id="kDisAvg">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>New Admission วันนี้</div>
+        <div class="kpi-grid" style="gap:10px">
+          <div class="kpi" style="padding:14px">
+            <div class="kpi-label">Admit รวม</div>
+            <div class="kpi-value green" id="kAdmTotal">-</div>
+            <div class="kpi-sub" id="kAdmSub">-</div>
+          </div>
+          <div class="kpi blue" style="padding:14px">
+            <div class="kpi-label">OPD New Patient</div>
+            <div class="kpi-value blue" id="kNewPt">-</div>
+            <div class="kpi-sub" id="kOldPt">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /detail -->
+</div><!-- /container -->
+
+<footer>
+  WMC Monthly Management Report &nbsp;|&nbsp; กันยายน 2569 &nbsp;|&nbsp;
+  Generated by WMC AI Dashboard &nbsp;|&nbsp; World Medical Hospital
+</footer>
+
+<script>
+
+const RAW = {"2026-09-01":{"date":"2026-09-01","totalVisit":300,"opdVisit":284,"ipdAdmit":16,"newPt":36,"oldPt":248,"counterVisit":324,"billAmt":1970521.96,"avgBill":6938.4576056338,"opdTotal":1970521.96,"opdThai":1187954.0,"opdInter":239601.0,"chkTotal":0.0,"ipdRev":1822933.05,"otRev":29392.3,"ipdInterBill":0.0,"ipdThaiBill":0.0,"opdInterBill":0.0,"opdThaiBill":0.0,"totalBilled":3380939.0,"totalBillsN":425,"wardTotal":47,"wardOnWard":[{"name":"Ward 8 (The World Superior Level)","yesterday":14,"discharge":-7,"newAdmit":4,"transfer":0,"today":11,"wardRev":241798.75},{"name":"Ward 9 (The World Superior  Level )","yesterday":14,"discharge":0,"newAdmit":0,"transfer":0,"today":14,"wardRev":876138.0},{"name":"Ward Intensive Care (ICU)","yesterday":2,"discharge":-1,"newAdmit":0,"transfer":0,"today":1,"wardRev":117582.0},{"name":"Intermediate Care Unit","yesterday":1,"discharge":0,"newAdmit":0,"transfer":0,"today":1,"wardRev":20944.3},{"name":"Ward 6A (The World Superior  Level )","yesterday":0,"discharge":0,"newAdmit":1,"transfer":0,"today":1,"wardRev":64845.5},{"name":"Ward 16 (The World Superior  Level )","yesterday":15,"discharge":-7,"newAdmit":11,"transfer":0,"today":19,"wardRev":501624.5}],"dischargeTotal":15,"dischargeBill":1294075.0,"admitTotal":16,"admitThai":15,"admitInter":1,"admitNew":4,"admitOld":12,"bu":[{"name":"Advance Pediatrics","visits":22,"dailyRev":52081.0,"dailyFc":93033.0,"mtdRev":52081.0,"monthlyFc":2791000.0},{"name":"Advance Skin Center","visits":3,"dailyRev":4125.0,"dailyFc":41667.0,"mtdRev":4125.0,"monthlyFc":1250000.0},{"name":"Advanced Gastroenterology","visits":9,"dailyRev":24385.0,"dailyFc":50400.0,"mtdRev":24385.0,"monthlyFc":1512000.0},{"name":"Advanced Ophthalmology","visits":18,"dailyRev":38048.0,"dailyFc":33033.0,"mtdRev":38048.0,"monthlyFc":991000.0},{"name":"Advanced Orthopedics","visits":29,"dailyRev":100509.0,"dailyFc":101400.0,"mtdRev":100509.0,"monthlyFc":3042000.0},{"name":"Advanced Rhino-otolaryngology","visits":20,"dailyRev":69073.0,"dailyFc":72067.0,"mtdRev":69073.0,"monthlyFc":2162000.0},{"name":"Advanced Surgery","visits":27,"dailyRev":136941.0,"dailyFc":134900.0,"mtdRev":136941.0,"monthlyFc":4047000.0},{"name":"Advanced Women s Health","visits":7,"dailyRev":29163.0,"dailyFc":48667.0,"mtdRev":29163.0,"monthlyFc":1460000.0},{"name":"Aesthetic Center","visits":0,"dailyRev":0.0,"dailyFc":50000.0,"mtdRev":0.0,"monthlyFc":1500000.0},{"name":"Cardiometabolic Program","visits":7,"dailyRev":14101.0,"dailyFc":15833.0,"mtdRev":14101.0,"monthlyFc":475000.0},{"name":"Check up Center","visits":20,"dailyRev":47259.0,"dailyFc":233333.0,"mtdRev":47259.0,"monthlyFc":7000000.0},{"name":"Emergency","visits":5,"dailyRev":28470.0,"dailyFc":85467.0,"mtdRev":28470.0,"monthlyFc":2564000.0},{"name":"Imaging Center","visits":5,"dailyRev":30000.0,"dailyFc":14000.0,"mtdRev":30000.0,"monthlyFc":420000.0},{"name":"Internal Medicine","visits":45,"dailyRev":208616.0,"dailyFc":183133.0,"mtdRev":208616.0,"monthlyFc":5494000.0},{"name":"Kidney Dialysis","visits":20,"dailyRev":0.0,"dailyFc":65433.0,"mtdRev":0.0,"monthlyFc":1963000.0},{"name":"Medical Rehabilitation","visits":19,"dailyRev":0.0,"dailyFc":43333.0,"mtdRev":0.0,"monthlyFc":1300000.0},{"name":"Metro health by WMC regenerative medicine","visits":9,"dailyRev":789863.0,"dailyFc":295367.0,"mtdRev":789863.0,"monthlyFc":8861000.0},{"name":"Night Clinic","visits":12,"dailyRev":51467.0,"dailyFc":23633.0,"mtdRev":51467.0,"monthlyFc":709000.0},{"name":"WMC Clinic","visits":32,"dailyRev":45786.0,"dailyFc":50000.0,"mtdRev":45786.0,"monthlyFc":1500000.0},{"name":"WMC Dental Center","visits":6,"dailyRev":6755.0,"dailyFc":50000.0,"mtdRev":6755.0,"monthlyFc":1500000.0},{"name":"WMC New Frontier Cancer Center","visits":10,"dailyRev":96555.0,"dailyFc":0.0,"mtdRev":96555.0,"monthlyFc":0.0},{"name":"World ART Center","visits":0,"dailyRev":0.0,"dailyFc":30000.0,"mtdRev":0.0,"monthlyFc":900000.0},{"name":"World Cosmetic Surgery Center","visits":0,"dailyRev":0.0,"dailyFc":0.0,"mtdRev":0.0,"monthlyFc":0.0},{"name":"World Diabetic Foot Center","visits":16,"dailyRev":107201.0,"dailyFc":150000.0,"mtdRev":107201.0,"monthlyFc":4500000.0},{"name":"World Medical Nichada Clinic","visits":10,"dailyRev":21012.0,"dailyFc":33567.0,"mtdRev":21012.0,"monthlyFc":1007000.0}]},"2026-09-02":{"date":"2026-09-02","totalVisit":331,"opdVisit":309,"ipdAdmit":22,"newPt":41,"oldPt":268,"counterVisit":355,"billAmt":1746410.5,"avgBill":5651.8139158576,"opdTotal":1746410.5,"opdThai":1355510.0,"opdInter":324098.0,"chkTotal":0.0,"ipdRev":1955329.55,"otRev":48321.5,"ipdInterBill":0.0,"ipdThaiBill":0.0,"opdInterBill":0.0,"opdThaiBill":0.0,"totalBilled":2854872.0,"totalBillsN":445,"wardTotal":51,"wardOnWard":[{"name":"Ward 8 (The World Superior Level)","yesterday":11,"discharge":-6,"newAdmit":10,"transfer":0,"today":15,"wardRev":359254.75},{"name":"Ward 9 (The World Superior  Level )","yesterday":14,"discharge":0,"newAdmit":1,"transfer":0,"today":15,"wardRev":794428.0},{"name":"Ward Intensive Care (ICU)","yesterday":1,"discharge":0,"newAdmit":0,"transfer":0,"today":1,"wardRev":129641.0},{"name":"Intermediate Care Unit","yesterday":1,"discharge":0,"newAdmit":0,"transfer":0,"today":1,"wardRev":22282.3},{"name":"Ward 6A (The World Superior  Level )","yesterday":1,"discharge":-1,"newAdmit":0,"transfer":0,"today":0,"wardRev":0.0},{"name":"Ward 15 (The World Superior  Level )","yesterday":0,"discharge":0,"newAdmit":6,"transfer":0,"today":6,"wardRev":367987.5},{"name":"Ward 16 (The World Superior  Level )","yesterday":19,"discharge":-11,"newAdmit":5,"transfer":0,"today":13,"wardRev":281736.0}],"dischargeTotal":18,"dischargeBill":929394.0,"admitTotal":22,"admitThai":19,"admitInter":3,"admitNew":4,"admitOld":18,"bu":[{"name":"Advance Pediatrics","visits":19,"dailyRev":50108.0,"dailyFc":93033.0,"mtdRev":102189.0,"monthlyFc":2791000.0},{"name":"Advance Skin Center","visits":9,"dailyRev":43215.0,"dailyFc":41667.0,"mtdRev":47340.0,"monthlyFc":1250000.0},{"name":"Advanced Gastroenterology","visits":9,"dailyRev":41907.0,"dailyFc":50400.0,"mtdRev":66292.0,"monthlyFc":1512000.0},{"name":"Advanced Ophthalmology","visits":23,"dailyRev":13411.0,"dailyFc":33033.0,"mtdRev":51459.0,"monthlyFc":991000.0},{"name":"Advanced Orthopedics","visits":30,"dailyRev":80231.0,"dailyFc":101400.0,"mtdRev":180739.0,"monthlyFc":3042000.0},{"name":"Advanced Rhino-otolaryngology","visits":16,"dailyRev":51332.0,"dailyFc":72067.0,"mtdRev":120405.0,"monthlyFc":2162000.0},{"name":"Advanced Surgery","visits":33,"dailyRev":119087.0,"dailyFc":134900.0,"mtdRev":256027.0,"monthlyFc":4047000.0},{"name":"Advanced Women s Health","visits":11,"dailyRev":45470.0,"dailyFc":48667.0,"mtdRev":74633.0,"monthlyFc":1460000.0},{"name":"Aesthetic Center","visits":1,"dailyRev":0.0,"dailyFc":50000.0,"mtdRev":0.0,"monthlyFc":1500000.0},{"name":"Cardiometabolic Program","visits":11,"dailyRev":76874.0,"dailyFc":15833.0,"mtdRev":90975.0,"monthlyFc":475000.0},{"name":"Check up Center","visits":36,"dailyRev":153876.0,"dailyFc":233333.0,"mtdRev":201135.0,"monthlyFc":7000000.0},{"name":"Emergency","visits":11,"dailyRev":59836.0,"dailyFc":85467.0,"mtdRev":88306.0,"monthlyFc":2564000.0},{"name":"Imaging Center","visits":4,"dailyRev":37010.0,"dailyFc":14000.0,"mtdRev":67010.0,"monthlyFc":420000.0},{"name":"Internal Medicine","visits":42,"dailyRev":145886.0,"dailyFc":183133.0,"mtdRev":354502.0,"monthlyFc":5494000.0},{"name":"Kidney Dialysis","visits":23,"dailyRev":0.0,"dailyFc":65433.0,"mtdRev":0.0,"monthlyFc":1963000.0},{"name":"Medical Rehabilitation","visits":17,"dailyRev":0.0,"dailyFc":43333.0,"mtdRev":0.0,"monthlyFc":1300000.0},{"name":"Metro health by WMC regenerative medicine","visits":12,"dailyRev":317787.0,"dailyFc":295367.0,"mtdRev":1107650.0,"monthlyFc":8861000.0},{"name":"Night Clinic","visits":6,"dailyRev":11696.0,"dailyFc":23633.0,"mtdRev":62663.0,"monthlyFc":709000.0},{"name":"WMC Clinic","visits":24,"dailyRev":29710.0,"dailyFc":50000.0,"mtdRev":75497.0,"monthlyFc":1500000.0},{"name":"WMC Dental Center","visits":5,"dailyRev":18493.0,"dailyFc":50000.0,"mtdRev":25248.0,"monthlyFc":1500000.0},{"name":"WMC New Frontier Cancer Center","visits":6,"dailyRev":240816.0,"dailyFc":0.0,"mtdRev":337371.0,"monthlyFc":0.0},{"name":"World ART Center","visits":1,"dailyRev":0.0,"dailyFc":30000.0,"mtdRev":0.0,"monthlyFc":900000.0},{"name":"World Cosmetic Surgery Center","visits":0,"dailyRev":0.0,"dailyFc":0.0,"mtdRev":0.0,"monthlyFc":0.0},{"name":"World Diabetic Foot Center","visits":16,"dailyRev":101654.0,"dailyFc":150000.0,"mtdRev":208855.0,"monthlyFc":4500000.0},{"name":"World Medical Nichada Clinic","visits":13,"dailyRev":25352.0,"dailyFc":33567.0,"mtdRev":46364.0,"monthlyFc":1007000.0}]}}
