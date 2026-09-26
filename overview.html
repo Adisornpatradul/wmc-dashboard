@@ -538,6 +538,9 @@
 
     const hourlyDays = days.filter(d=>Array.isArray(d.hourly));
     const hourly = hourlyDays.length ? Array.from({length:24}, (_,h)=> sumBy(hourlyDays.map(d=>({v:d.hourly[h]})), 'v')) : null;
+    const noHourly = days.filter(d=>!Array.isArray(d.hourly)).map(d=>d.date);
+    const noFlow = days.filter(d=>!(d.flow && (d.flow.non_er_lab || d.flow.non_er_nolab))).map(d=>d.date);
+    const noRVPV = days.filter(d=>!(d.revenue_per_visit && typeof d.revenue_per_visit.today==='number')).map(d=>d.date);
 
     const bfDays = days.filter(d=>d.bed_flow);
     const bed_flow = bfDays.length ? {
@@ -607,6 +610,7 @@
       summary, revenue, ward, bed_flow, new_admission, discharge, revenue_per_visit, flow,
       patient_by_dept_top6, overview,
       _range: true,
+      _partial: { noHourly, noFlow, noRVPV },
     };
   }
 
@@ -811,12 +815,16 @@
     if (!days.length){ setStatus('ไม่มีข้อมูลในช่วงที่เลือก', true); return; }
     days.sort((a,b)=> a.date < b.date ? -1 : 1);
     setStatus(`สรุปยอดรวม ${days.length} วัน (${thaiDateShort(days[0].date)} – ${thaiDateShort(days[days.length-1].date)})`);
-    if (missing.length){
-      setBanner(`<b>หมายเหตุ:</b> ยังไม่มีข้อมูลของวันที่ ${missing.map(thaiDateShort).join(', ')} ในช่วงที่เลือก จึงไม่ถูกรวมในตัวเลขนี้`);
-    } else {
-      setBanner('');
-    }
     const agg = aggregateRange(days);
+    const notes = [];
+    if (missing.length){
+      notes.push(`ยังไม่มีข้อมูลของวันที่ ${missing.map(thaiDateShort).join(', ')} ในช่วงที่เลือก จึงไม่ถูกรวมในตัวเลขนี้เลย`);
+    }
+    const { noHourly, noFlow, noRVPV } = agg._partial;
+    if (noHourly.length) notes.push(`ไม่มีข้อมูลผู้ป่วยตามช่วงเวลาของวันที่ ${noHourly.map(thaiDateShort).join(', ')} (ไฟล์ CH1335 ไม่พร้อม) — กราฟตามช่วงเวลานับเฉพาะวันที่มีข้อมูล`);
+    if (noFlow.length) notes.push(`ไม่มีข้อมูลเวลารอคอยของวันที่ ${noFlow.map(thaiDateShort).join(', ')} (ไฟล์ CH1288 ไม่พร้อม) — ค่าเฉลี่ยเวลารอคอยคำนวณเฉพาะวันที่มีข้อมูล`);
+    if (noRVPV.length) notes.push(`ไม่มีข้อมูลรายได้เฉลี่ยต่อ Visit ของวันที่ ${noRVPV.map(thaiDateShort).join(', ')} (ไฟล์ CH1434 ไม่พร้อม)`);
+    setBanner(notes.length ? `<b>หมายเหตุ:</b> ${notes.join(' · ')}` : '');
     setChrome('range', days.map(d=>d.date));
     renderDashboard(agg);
   }
