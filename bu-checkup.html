@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap">
+<title>แดชบอร์ด BU: เช็คอัพเซ็นเตอร์ — WMC</title>
+<style>
+:root{
+  color-scheme: light;
+  --page-bg: #eef1f0; --paper: #ffffff; --surface-2: #f0f4f3;
+  --text-primary: #0c1420; --text-secondary: #4c5a68; --text-muted: #8894a0;
+  --border: rgba(12,20,32,0.10); --border-strong: rgba(12,20,32,0.18);
+  --blue: #2a78d6; --green: #12a06f; --yellow: #eda100;
+  --good: #0ca30c; --warning: #c98500; --critical: #d03b3b;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page-bg:#0c1420; --paper:#141d29; --surface-2:#1b2531;
+    --text-primary:#eef2f6; --text-secondary:#aab6c2; --text-muted:#7c8894;
+    --border: rgba(255,255,255,0.10); --border-strong: rgba(255,255,255,0.18);
+  }
+}
+:root[data-theme="dark"]{
+  --page-bg:#0c1420; --paper:#141d29; --surface-2:#1b2531;
+  --text-primary:#eef2f6; --text-secondary:#aab6c2; --text-muted:#7c8894;
+  --border: rgba(255,255,255,0.10); --border-strong: rgba(255,255,255,0.18);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page-bg);color:var(--text-primary);font-family:"Noto Sans Thai","Kanit",sans-serif;-webkit-font-smoothing:antialiased}
+.num{font-variant-numeric:tabular-nums}
+.sheet-outer{display:flex;justify-content:center;padding:18px 12px 60px}
+.sheet{width:100%;max-width:780px}
+.card{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.topbar h1{font-family:"Kanit",sans-serif;font-size:19px;font-weight:700;margin:0 0 2px}
+.topbar .sub{color:var(--text-secondary);font-size:12.5px;margin:0}
+.butag{display:inline-block;background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-top:6px}
+.meta-date{font-size:12px;color:var(--text-muted);text-align:right}
+.controlbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)}
+.seg{display:flex;border:1px solid var(--border-strong);border-radius:10px;overflow:hidden}
+.seg button{border:none;background:var(--surface-2);color:var(--text-secondary);font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;cursor:pointer}
+.seg button.active{background:var(--blue);color:#fff}
+.controlbar input[type=date]{border:1px solid var(--border-strong);border-radius:8px;padding:6px 8px;font-family:inherit;font-size:12.5px;background:var(--paper);color:var(--text-primary)}
+.controlbar button.go{border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.ctl-status{font-size:12px;color:var(--text-muted);width:100%;margin-top:4px}
+.banner{background:rgba(237,161,0,0.12);border:1px solid rgba(237,161,0,0.4);color:var(--warning);font-size:12px;border-radius:10px;padding:8px 12px;margin-bottom:14px;line-height:1.5}
+.banner:empty{display:none}
+.hero-rev{font-family:"Kanit",sans-serif;font-size:34px;font-weight:800;margin:2px 0}
+.hero-label{font-size:12.5px;color:var(--text-secondary)}
+.track{position:relative;height:14px;background:var(--surface-2);border-radius:8px;margin:10px 0;overflow:hidden}
+.track-fill{position:absolute;left:0;top:0;height:100%;border-radius:8px}
+.track-target{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text-primary)}
+.achieve-badge{display:inline-block;font-family:"Kanit",sans-serif;font-weight:800;font-size:15px;padding:4px 12px;border-radius:999px;color:#fff}
+.mini-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.mini-card{background:var(--surface-2);border-radius:12px;padding:12px 14px}
+.mini-card .l{font-size:11.5px;color:var(--text-muted)}
+.mini-card .v{font-family:"Kanit",sans-serif;font-size:19px;font-weight:700;margin-top:2px}
+.mini-card .yoy{font-size:11.5px;margin-top:2px}
+.summary-text{font-size:13.5px;line-height:1.9;color:var(--text-secondary)}
+h2.sec{font-family:"Kanit",sans-serif;font-size:14.5px;font-weight:700;margin:0 0 10px}
+table.adm{width:100%;border-collapse:collapse;font-size:12.5px}
+table.adm th{text-align:left;color:var(--text-muted);font-weight:600;padding:5px 6px;border-bottom:1px solid var(--border)}
+table.adm td{padding:6px 6px;border-bottom:1px solid var(--border)}
+.empty-note{color:var(--text-muted);font-size:12.5px;padding:10px 0}
+ul.watchlist{margin:0;padding-left:18px;font-size:12.5px;color:var(--text-secondary);line-height:1.8}
+.footer{font-size:11px;color:var(--text-muted);text-align:center;line-height:1.7;margin-top:6px}
+.footer a{color:var(--blue);text-decoration:none}
+@media (max-width:640px){
+  .mini-cards{grid-template-columns:1fr}
+  .hero-rev{font-size:28px}
+}
+@media print{@page{size:A4 portrait;margin:12mm}.controlbar{display:none}}
+</style>
+</head>
+<body>
+<div class="sheet-outer"><div class="sheet">
+
+  <div class="card topbar">
+    <div>
+      <h1>แดชบอร์ด BU: เช็คอัพเซ็นเตอร์</h1>
+      <p class="sub">World Medical Hospital — Check up Center</p>
+      <span class="butag">Check up Center</span>
+    </div>
+    <div class="meta-date" id="metaDate">—</div>
+    <div class="controlbar" style="width:100%">
+      <div class="seg" id="modeSeg">
+        <button data-mode="single" class="active">วันเดียว</button>
+        <button data-mode="range">ช่วงวันที่</button>
+      </div>
+      <span id="singleWrap"><input type="date" id="singleDate"></span>
+      <span id="rangeWrap" style="display:none">
+        <input type="date" id="fromDate"> – <input type="date" id="toDate">
+        <button class="go" id="rangeGoBtn">แสดงผล</button>
+      </span>
+      <div class="ctl-status" id="ctlStatus"></div>
+    </div>
+  </div>
+
+  <div class="banner" id="warnBanner"></div>
+
+  <div class="card">
+    <div class="hero-label">รายได้ OPD วันนี้ เทียบเป้าหมาย (Daily Forecast)</div>
+    <div class="hero-rev num" id="heroActual">—</div>
+    <div class="track"><div class="track-fill" id="trackFill"></div><div class="track-target" id="trackTarget"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span style="font-size:12.5px;color:var(--text-secondary)">เป้าหมาย <b class="num" id="heroTarget">—</b> บาท</span>
+      <span class="achieve-badge" id="achieveBadge">—</span>
+    </div>
+    <div class="mini-cards">
+      <div class="mini-card">
+        <div class="l">ผู้ป่วย (Order Location)</div>
+        <div class="v num" id="miniVisits">—</div>
+      </div>
+      <div class="mini-card">
+        <div class="l">รายได้เฉลี่ยต่อ Visit</div>
+        <div class="v num" id="miniPerVisit">—</div>
+        <div class="yoy" id="miniYoy"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">สรุปภาพรวม</h2>
+    <p class="summary-text" id="summaryText">—</p>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">ผู้ป่วยรับใหม่ IPD ที่มาจาก เช็คอัพเซ็นเตอร์</h2>
+    <div id="admissionBox"></div>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">หมายเหตุ / ขอบเขตข้อมูล</h2>
+    <ul class="watchlist">
+      <li>ยังไม่แสดง MTD (สะสมตั้งแต่ต้นเดือน) ระดับ BU นี้ — เพิ่งเริ่มเก็บข้อมูลรายวันแบบอัตโนมัติ ขอสะสมข้อมูลและตรวจสอบความถูกต้องย้อนหลังก่อนสักระยะ</li>
+      <li>ยังไม่มีข้อมูลแยกสัญชาติ, ระดับแพทย์/การวินิจฉัย, discharge/LOS แยกตามแผนกนี้ — รายงานต้นทางมีแค่ระดับวอร์ดรวม</li>
+      <li>ยังไม่มีข้อมูล Counter Visit แยกตาม BU ในรายงานต้นทาง — ตัวเลขผู้ป่วยที่แสดงคือ "Order Location" (การตั้งค่าแผนกที่รับรู้รายได้)</li>
+      <li id="ch1434Note" style="display:none"></li>
+      <li>แหล่งข้อมูล: WMC Daily Management Report 16 — แถว "OPD Revenue Location" (ชื่อ Check up Center) และ "New Patient Admission on Ward" คอลัมน์ Admission Department; รายได้เฉลี่ยต่อ Visit cross-check กับรายงาน CH1434</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    ข้อมูลจาก WMC Daily Management Report 16 + CH1434 (cross-check รายได้ต่อ Visit)<br>
+    <a href="overview.html">← กลับไปหน้าภาพรวมโรงพยาบาล</a> &nbsp;|&nbsp; <a href="index.html">หน้าหลัก Dashboard</a>
+  </div>
+
+</div></div>
+
+<script>
+(function(){
+  const BU_SLUG = "checkup";
+  const NAME_TH = "เช็คอัพเซ็นเตอร์";
+  const NAME_EN = "Check up Center";
+
+  const fmt = (n,d=0) => (n===null||n===undefined||isNaN(n)) ? '—' : Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const baht = (n,d=0) => (n===null||n===undefined||isNaN(n)) ? '—' : '฿' + fmt(n,d);
+  const thaiMonths = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  function thaiDateShort(dstr){
+    const [y,m,d] = dstr.split('-').map(Number);
+    return `${d} ${thaiMonths[m-1]} ${y+543-2500}`;
+  }
+  function thaiDateLong(dstr){
+    const [y,m,d] = dstr.split('-').map(Number);
+    return `${d} ${thaiMonths[m-1]} ${y+543}`;
+  }
+
+  let availableDates = [];
+  const cache = {};
+
+  async function fetchDay(dateStr){
+    if (cache[dateStr]) return cache[dateStr];
+    try{
+      const res = await fetch(`data/bu/${BU_SLUG}/${dateStr}.json`, {cache:'no-store'});
+      if (!res.ok) return null;
+      const d = await res.json();
+      cache[dateStr] = d;
+      return d;
+    }catch(e){ return null; }
+  }
+
+  function achieveColor(pct){
+    if (pct===null||pct===undefined) return 'var(--text-muted)';
+    if (pct>=100) return 'var(--good)';
+    if (pct>=80) return 'var(--warning)';
+    return 'var(--critical)';
+  }
+
+  function setBanner(html){
+    document.getElementById('warnBanner').innerHTML = html || '';
+  }
+  function setStatus(text){
+    document.getElementById('ctlStatus').textContent = text;
+  }
+
+  function aggregateRange(days){
+    // days = [{date, D}] เรียงตามวันที่ ascending, D คือ object จาก fetchDay (ไม่ null)
+    let visits=0,target=0,actual=0, haveDaily=false;
+    let admTotal=0; const admMap = {}; // key = ward+"||"+department -> count
+    let perVisitWeightedNum=0, perVisitWeightedDen=0;
+    for (const {D} of days){
+      if (D.daily){
+        haveDaily = true;
+        visits += D.daily.visits||0; target += D.daily.target||0; actual += D.daily.actual||0;
+        if (D.daily.actual && D.daily.visits){ perVisitWeightedNum += D.daily.actual; perVisitWeightedDen += D.daily.visits; }
+      }
+      if (D.admission){
+        admTotal += D.admission.total||0;
+        for (const it of (D.admission.items||[])){
+          const key = (it.ward||'')+'||'+(it.department||'');
+          admMap[key] = admMap[key] || {ward: it.ward, department: it.department, count: 0};
+          admMap[key].count += it.count||0;
+        }
+      }
+    }
+    const achieve = (haveDaily && target) ? Math.round(actual/target*100) : null;
+    const lastCh1434 = days.length ? (days[days.length-1].D.billing && days[days.length-1].D.billing.ch1434) : null;
+    return {
+      date: days[days.length-1].date,
+      meta: {slug: BU_SLUG, name_th: NAME_TH, name_en: NAME_EN},
+      daily: haveDaily ? {visits, target, actual, achieve, gap: actual-target} : null,
+      billing: {
+        per_visit_own: perVisitWeightedDen ? Math.round((perVisitWeightedNum/perVisitWeightedDen)*100)/100 : null,
+        ch1434: lastCh1434 || null,
+      },
+      admission: {total: admTotal, items: Object.values(admMap)},
+      _range: true,
+      _rangeInfo: {from: days[0].date, to: days[days.length-1].date, n: days.length},
+    };
+  }
+
+  function renderDashboard(D, isRange){
+    const daily = D.daily;
+    document.getElementById('heroActual').textContent = daily ? baht(daily.actual) : '—';
+    document.getElementById('heroTarget').textContent = daily ? fmt(daily.target) : '—';
+    const pctVal = daily ? daily.achieve : null;
+    const badge = document.getElementById('achieveBadge');
+    badge.textContent = (pctVal===null||pctVal===undefined) ? 'ไม่มีข้อมูล' : pctVal + '% ของเป้า';
+    badge.style.background = achieveColor(pctVal);
+    const fill = document.getElementById('trackFill');
+    const target = document.getElementById('trackTarget');
+    if (daily && daily.target){
+      const ratio = Math.max(0, Math.min(1.3, daily.actual/daily.target));
+      fill.style.width = Math.min(100, ratio*100/1.3*1.3>100?100:(daily.actual/Math.max(daily.actual,daily.target))*100) + '%';
+      // แสดง fill ตามสัดส่วนจริงเทียบเป้า (ถ้าเกินเป้า fill เต็ม 100% และเส้นเป้าจะขยับเข้ามา)
+      const maxScale = Math.max(daily.actual, daily.target) * 1.05;
+      fill.style.width = (daily.actual/maxScale*100) + '%';
+      fill.style.background = achieveColor(daily.achieve);
+      target.style.left = (daily.target/maxScale*100) + '%';
+      target.style.display = 'block';
+    } else {
+      fill.style.width = '0%'; target.style.display='none';
+    }
+    document.getElementById('miniVisits').textContent = daily ? fmt(daily.visits) + ' คน' : '—';
+
+    const billing = D.billing || {};
+    const perVisit = billing.per_visit_own;
+    document.getElementById('miniPerVisit').textContent = perVisit!=null ? baht(perVisit,0) : '—';
+    const yoyEl = document.getElementById('miniYoy');
+    const ch = billing.ch1434;
+    const ch1434Note = document.getElementById('ch1434Note');
+    if (ch && ch.yoy!=null){
+      const yoyPct = Math.round(ch.yoy*1000)/10;
+      const sign = yoyPct>=0 ? '+' : '';
+      yoyEl.innerHTML = `เทียบปีก่อน (CH1434) <b style="color:${yoyPct>=0?'var(--good)':'var(--critical)'}">${sign}${yoyPct}%</b>`;
+      ch1434Note.style.display='none';
+    } else {
+      yoyEl.textContent = '';
+      ch1434Note.textContent = `รายงาน CH1434 ยังไม่มีข้อมูลรายได้ต่อ Visit แยกสำหรับ ${NAME_EN} ในช่วงที่เลือก (บาง BU ไม่ถูก track แบบต่อ Visit ในรายงานนี้) — ตัวเลขที่แสดงคำนวณเองจาก OPD Revenue Location (รายได้/จำนวนผู้ป่วย)`;
+      ch1434Note.style.display='list-item';
+    }
+
+    // summary text
+    let summary = '';
+    if (daily){
+      const gapWord = daily.gap>=0 ? 'สูงกว่าเป้า' : 'ต่ำกว่าเป้า';
+      const gapColor = daily.gap>=0 ? 'var(--good)' : 'var(--critical)';
+      summary += `${NAME_TH} มีผู้ป่วย <b class="num">${fmt(daily.visits)}</b> คน รายได้ <b class="num">${baht(daily.actual)}</b> บาท เทียบเป้าหมาย <b class="num">${fmt(daily.target)}</b> บาท (<b style="color:${gapColor}">${gapWord} ${baht(Math.abs(daily.gap))} บาท</b>) `;
+      if (perVisit!=null) summary += `รายได้เฉลี่ยต่อ Visit อยู่ที่ <b class="num">${baht(perVisit,0)}</b> บาท `;
+      if (ch && ch.yoy!=null){
+        const yoyPct = Math.round(ch.yoy*1000)/10;
+        summary += `(เทียบปีก่อน${yoyPct>=0?'เพิ่มขึ้น':'ลดลง'} ${Math.abs(yoyPct)}%) `;
+      }
+    } else {
+      summary = `ไม่มีข้อมูลรายได้ของ ${NAME_TH} ในช่วงที่เลือก`;
+    }
+    if (D.admission && D.admission.total){
+      summary += `มีผู้ป่วยรับใหม่ IPD ที่มาจาก ${NAME_TH} จำนวน <b class="num">${D.admission.total}</b> ราย`;
+    } else {
+      summary += `ไม่มีผู้ป่วยรับใหม่ IPD ที่มาจาก ${NAME_TH} ในช่วงที่เลือก`;
+    }
+    document.getElementById('summaryText').innerHTML = summary;
+
+    // admission table
+    const admBox = document.getElementById('admissionBox');
+    const items = (D.admission && D.admission.items) || [];
+    if (items.length){
+      let rows = items.map(it => `<tr><td>${it.ward||'—'}</td><td>${it.department||'—'}</td><td class="num" style="text-align:right">${fmt(it.count)}</td></tr>`).join('');
+      admBox.innerHTML = `<table class="adm"><thead><tr><th>Ward</th><th>Admission Department</th><th style="text-align:right">จำนวน</th></tr></thead><tbody>${rows}</tbody></table>`;
+    } else {
+      admBox.innerHTML = `<div class="empty-note">ไม่มีผู้ป่วยรับใหม่ IPD ที่มาจาก ${NAME_TH} ในช่วงที่เลือก</div>`;
+    }
+  }
+
+  function setChrome(mode, dates){
+    const metaDate = document.getElementById('metaDate');
+    if (mode==='single'){
+      metaDate.innerHTML = `ข้อมูลวันที่<br><b>${thaiDateLong(dates[0])}</b>`;
+    } else {
+      metaDate.innerHTML = `สรุปยอดรวม ${dates.length} วัน<br><b>${thaiDateShort(dates[0])} – ${thaiDateShort(dates[dates.length-1])}</b>`;
+    }
+  }
+
+  async function loadSingle(dateStr){
+    setStatus('กำลังโหลด...'); setBanner('');
+    const D = await fetchDay(dateStr);
+    if (!D){
+      setStatus(`ไม่มีข้อมูลของวันที่ ${thaiDateShort(dateStr)}`);
+      setBanner(`<b>หมายเหตุ:</b> ยังไม่มีข้อมูลของวันที่ ${thaiDateShort(dateStr)} ในระบบ`);
+      renderDashboard({daily:null, billing:{}, admission:{total:0,items:[]}}, false);
+      setChrome('single', [dateStr]);
+      return;
+    }
+    setStatus(`ข้อมูลวันที่ ${thaiDateShort(dateStr)}`);
+    setChrome('single', [dateStr]);
+    renderDashboard(D, false);
+  }
+
+  async function loadRange(fromStr, toStr){
+    setStatus('กำลังโหลด...'); setBanner('');
+    const wanted = availableDates.filter(d => d>=fromStr && d<=toStr);
+    const missing = [];
+    const from0 = new Date(fromStr), to0 = new Date(toStr);
+    for (let d=new Date(from0); d<=to0; d.setDate(d.getDate()+1)){
+      const ds = d.toISOString().slice(0,10);
+      if (!availableDates.includes(ds)) missing.push(ds);
+    }
+    if (!wanted.length){
+      setStatus('ไม่มีข้อมูลในช่วงที่เลือก');
+      setBanner(`<b>หมายเหตุ:</b> ยังไม่มีข้อมูลของช่วงวันที่เลือกเลย`);
+      renderDashboard({daily:null, billing:{}, admission:{total:0,items:[]}}, true);
+      return;
+    }
+    const days = [];
+    for (const ds of wanted){
+      const D = await fetchDay(ds);
+      if (D) days.push({date: ds, D});
+    }
+    setStatus(`สรุปยอดรวม ${days.length} วัน (${thaiDateShort(days[0].date)} – ${thaiDateShort(days[days.length-1].date)})`);
+    const agg = aggregateRange(days);
+    const notes = [];
+    if (missing.length) notes.push(`ยังไม่มีข้อมูลของวันที่ ${missing.map(thaiDateShort).join(', ')} ในช่วงที่เลือก จึงไม่ถูกรวมในตัวเลขนี้`);
+    setBanner(notes.length ? `<b>หมายเหตุ:</b> ${notes.join(' · ')}` : '');
+    setChrome('range', days.map(d=>d.date));
+    renderDashboard(agg, true);
+  }
+
+  async function init(){
+    try{
+      const res = await fetch(`data/bu/${BU_SLUG}/index.json`, {cache:'no-store'});
+      availableDates = res.ok ? await res.json() : [];
+    }catch(e){ availableDates = []; }
+    if (!availableDates.length){
+      setStatus('ยังไม่มีข้อมูลของ BU นี้ในระบบ');
+      renderDashboard({daily:null, billing:{}, admission:{total:0,items:[]}}, false);
+      return;
+    }
+    const last = availableDates[availableDates.length-1];
+    const first = availableDates[0];
+    document.getElementById('singleDate').value = last;
+    document.getElementById('singleDate').min = first;
+    document.getElementById('singleDate').max = last;
+    document.getElementById('fromDate').value = availableDates.length>1 ? availableDates[availableDates.length-2] : first;
+    document.getElementById('toDate').value = last;
+    document.getElementById('fromDate').min = first; document.getElementById('fromDate').max = last;
+    document.getElementById('toDate').min = first; document.getElementById('toDate').max = last;
+
+    document.querySelectorAll('#modeSeg button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const mode = btn.dataset.mode;
+        document.getElementById('singleWrap').style.display = mode==='single' ? '' : 'none';
+        document.getElementById('rangeWrap').style.display = mode==='range' ? '' : 'none';
+        if (mode==='single') loadSingle(document.getElementById('singleDate').value);
+        else loadRange(document.getElementById('fromDate').value, document.getElementById('toDate').value);
+      });
+    });
+    document.getElementById('singleDate').addEventListener('change', e => loadSingle(e.target.value));
+    document.getElementById('rangeGoBtn').addEventListener('click', () => {
+      loadRange(document.getElementById('fromDate').value, document.getElementById('toDate').value);
+    });
+
+    loadSingle(last);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
