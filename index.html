@@ -91,6 +91,16 @@ h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.3px; }
   color: #fff;
 }
 .btn2:active { transform: scale(0.97); opacity: 0.9; }
+
+.bu-links { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:center; }
+.btn3 {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  text-decoration: none; cursor: pointer; border: 1px solid rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.05); color: #fff;
+}
+.btn3:active { transform: scale(0.97); opacity: 0.9; }
+
 </style>
 </head>
 <body>
@@ -110,6 +120,13 @@ h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.3px; }
 <p class="hint" id="hint"></p>
 
 <a class="btn2" href="overview.html">📈  ภาพรวมรายวัน (เลือกวันที่ / ช่วงวันที่)</a>
+
+<div class="bu-links">
+  <a class="btn3" href="bu-checkup.html">🩺 เช็คอัพเซ็นเตอร์</a>
+  <a class="btn3" href="bu-emergency.html">🚑 ฉุกเฉิน</a>
+  <a class="btn3" href="bu-advanced-surgery.html">🔬 ศัลยกรรมขั้นสูง</a>
+</div>
+
 
 <script>
 (function () {
