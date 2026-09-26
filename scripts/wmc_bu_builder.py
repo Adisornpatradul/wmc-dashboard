@@ -17,11 +17,14 @@ New Patient Admission on Ward) และ CH1434 (รายได้เฉลี�
 import argparse
 import base64
 import json
+import os
 import re
 import sys
 import urllib.request
 import urllib.error
 from datetime import datetime, timedelta
+
+EXCEL_PREFIX = "WMCDailyManagementType16"
 
 # --------------------------------------------------------------------------
 # นิยาม BU ที่ต้องทำ dashboard แบบ interactive (เริ่มจาก 3 BU รายได้สูงสุด)
@@ -284,11 +287,50 @@ def push_bu_day_data(D, slug, repo, token):
     print(f"✅ updated {index_path} ({len(dates)} dates)")
 
 
+def resolve_report16_path(cowork_dir, target_date):
+    """path เดียวกันเป๊ะๆ กับที่ wmc_overview_builder.py เซฟไว้ตอน fetch จาก Gmail
+    (เรียก bu_builder ต่อจาก overview_builder ในการรันเดียวกัน ไฟล์นี้จะมีอยู่แล้วเสมอ)"""
+    name = f"{EXCEL_PREFIX} ({target_date.day}-{target_date.month}-{(target_date.year + 543) % 100}).xlsx"
+    return os.path.join(cowork_dir, name)
+
+
+def find_ch_file(cowork_dir, ch_code, target_date):
+    """สำเนาของ find_ch_file ใน wmc_overview_builder.py (คัดลอกมาให้ในตัว ไม่พึ่ง import ข้ามสคริปต์
+    เพราะ wmc_overview_builder.py ถูกดาวน์โหลดไปไว้ที่ /tmp ตอนรันจริง ไม่ใช่ใน cowork_dir)
+    ต้องเปิดดูข้างในเพื่อเช็ควันที่ (แถวแรกของ sheet Document_CH#### เป็น datetime ของวันที่ข้อมูล)"""
+    import openpyxl
+
+    candidates = []
+    for fn in os.listdir(cowork_dir):
+        if not fn.lower().endswith(".xlsx"):
+            continue
+        full = os.path.join(cowork_dir, fn)
+        try:
+            wb = openpyxl.load_workbook(full, data_only=True, read_only=True)
+            ws = wb.worksheets[0]
+            if ws.title != f"Document_{ch_code}":
+                wb.close()
+                continue
+            first_cell = ws.cell(row=1, column=1).value
+            wb.close()
+        except Exception:
+            continue
+        if isinstance(first_cell, datetime) and first_cell.date() == target_date.date():
+            candidates.append((full, os.path.getmtime(full)))
+
+    if not candidates:
+        return None
+    candidates.sort(key=lambda x: x[1], reverse=True)
+    return candidates[0][0]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", help="YYYY-MM-DD (default: yesterday)")
-    ap.add_argument("--report16", required=True)
-    ap.add_argument("--ch1434", default=None)
+    ap.add_argument("--cowork-dir", default=None,
+                     help="ถ้าระบุ จะหา Report16 (path เดียวกับที่ wmc_overview_builder.py เซฟไว้) และ CH1434 ให้เอง")
+    ap.add_argument("--report16", default=None, help="ระบุตรงๆ ถ้าไม่ใช้ --cowork-dir")
+    ap.add_argument("--ch1434", default=None, help="ระบุตรงๆ ถ้าไม่ใช้ --cowork-dir")
     ap.add_argument("--gh-token", required=True)
     ap.add_argument("--gh-repo", default="Adisornpatradul/wmc-dashboard")
     ap.add_argument("--no-push", action="store_true")
@@ -302,11 +344,25 @@ def main():
 
     print(f"📅 BU builder target date: {target_date.strftime('%Y-%m-%d')}")
 
+    report16_path = args.report16
+    ch1434_path = args.ch1434
+    if args.cowork_dir:
+        report16_path = report16_path or resolve_report16_path(args.cowork_dir, target_date)
+        if not os.path.exists(report16_path):
+            print(f"❌ ไม่พบ Report16 ที่ {report16_path} — ต้องรัน wmc_overview_builder.py ก่อนเสมอ (เพื่อ fetch จาก Gmail)")
+            sys.exit(1)
+        if not ch1434_path:
+            ch1434_path = find_ch_file(args.cowork_dir, "CH1434", target_date)
+        print(f"✅ Report16: {report16_path}")
+        print(f"   CH1434: {ch1434_path}")
+
+    args.report16 = report16_path
+    args.ch1434 = ch1434_path
+
     for bu_conf in BU_CONFIG:
         D = build_bu_data(args.report16, args.ch1434, target_date, bu_conf)
         print(f"   [{bu_conf['slug']}] daily={D['daily']} admission_total={D['admission']['total']}")
         if args.out_dir:
-            import os
             with open(os.path.join(args.out_dir, f"{bu_conf['slug']}_{D['date']}.json"), "w", encoding="utf-8") as f:
                 json.dump(D, f, ensure_ascii=False, indent=1)
         if not args.no_push:
